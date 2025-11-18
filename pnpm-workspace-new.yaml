@@ -1,0 +1,16 @@
+packages:
+  # Frontend applications
+  - 'apps/*'
+  
+  # Shared packages
+  - 'packages/*'
+  
+  # Backend services
+  - 'services/*'
+  
+  # Legacy packages (will be migrated)
+  - 'chefshot'
+  - 'test-kitchen'
+  
+  # Infrastructure configuration
+  # - 'infra/*'  # Uncomment when needed
