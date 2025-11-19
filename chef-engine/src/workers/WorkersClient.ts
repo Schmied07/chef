@@ -3,8 +3,8 @@ import type {
   WorkersJobRequest,
   WorkersJobResponse,
   BuildResult,
-  ExecutionStrategy,
 } from '../types/index.js';
+import { ExecutionStrategy } from '../types/index.js';
 import type { Logger } from '../utils/logger.js';
 import { retryWithBackoff } from '../utils/retry.js';
 
