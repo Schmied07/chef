@@ -3,5 +3,6 @@ packages:
   - 'test-kitchen'
   - 'chef-agent'
   - 'workers'
+  - 'chef-engine'
   # You can add more workspace packages here later if needed
   # - "packages/*"
