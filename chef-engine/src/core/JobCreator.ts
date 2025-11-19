@@ -2,8 +2,8 @@ import type {
   BuildRequest,
   BuildResult,
   ProjectFile,
-  ExecutionStrategy,
 } from '../types/index.js';
+import { ExecutionStrategy } from '../types/index.js';
 import { WorkersClient } from '../workers/WorkersClient.js';
 import { FileUtils } from '../filesystem/FileUtils.js';
 import type { Logger } from '../utils/logger.js';
