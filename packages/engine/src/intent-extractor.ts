@@ -3,26 +3,35 @@
  */
 
 import type { UserPrompt, ExtractedIntent } from './types';
+import { callAIService } from './utils/ai-bridge';
 
 /**
- * Extracts structured intent from a user prompt
+ * Extracts structured intent from a user prompt using AI
  */
 export async function extractIntent(
   prompt: UserPrompt
 ): Promise<ExtractedIntent> {
-  // TODO: Implement AI-powered intent extraction
-  // This will use LLM to analyze the prompt and extract:
-  // - Main purpose of the application
-  // - List of features
-  // - Suggested tech stack
-  // - Constraints and requirements
-  
-  return {
-    purpose: 'Extracted from prompt',
-    features: [],
-    techStack: [],
-    constraints: [],
-  };
+  try {
+    const result = await callAIService('extract_intent', {
+      prompt: prompt.text
+    });
+    
+    return {
+      purpose: result.purpose || 'Application',
+      features: result.features || [],
+      techStack: result.techStack || [],
+      constraints: result.constraints || [],
+    };
+  } catch (error) {
+    console.error('Error extracting intent:', error);
+    // Fallback to basic extraction
+    return {
+      purpose: prompt.text.substring(0, 100),
+      features: [],
+      techStack: ['react', 'typescript'],
+      constraints: [],
+    };
+  }
 }
 
 /**
