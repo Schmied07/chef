@@ -2,5 +2,6 @@ packages:
   - 'chefshot'
   - 'test-kitchen'
   - 'chef-agent'
+  - 'workers'
   # You can add more workspace packages here later if needed
   # - "packages/*"
