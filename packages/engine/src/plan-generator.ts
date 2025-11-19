@@ -3,28 +3,33 @@
  */
 
 import type { ExtractedIntent, GenerationPlan, PlanStep } from './types';
+import { callAIService } from './utils/ai-bridge';
 
 /**
- * Generates a detailed execution plan from the extracted intent
+ * Generates a detailed execution plan from the extracted intent using AI
  */
 export async function generatePlan(
   intent: ExtractedIntent
 ): Promise<GenerationPlan> {
-  // TODO: Implement AI-powered plan generation
-  // This will create a step-by-step plan with:
-  // - File scaffolding
-  // - Component creation
-  // - API endpoints
-  // - Database schema
-  // - Configuration files
-  
-  const steps: PlanStep[] = [];
-  
-  return {
-    steps,
-    dependencies: [],
-    estimatedTime: 0,
-  };
+  try {
+    const result = await callAIService('generate_plan', {
+      intent
+    });
+    
+    return {
+      steps: result.steps || [],
+      dependencies: result.dependencies || [],
+      estimatedTime: result.estimatedTime || 300,
+    };
+  } catch (error) {
+    console.error('Error generating plan:', error);
+    // Fallback to basic plan
+    return {
+      steps: [],
+      dependencies: [],
+      estimatedTime: 0,
+    };
+  }
 }
 
 /**
