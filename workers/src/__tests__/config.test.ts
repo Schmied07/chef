@@ -23,6 +23,6 @@ describe('Configuration', () => {
 
   it('should have valid Docker configuration', () => {
     expect(config.docker.network).toBeDefined();
-    expect(config.docker.network).toHaveLength.greaterThan(0);
+    expect(config.docker.network.length).toBeGreaterThan(0);
   });
 });
