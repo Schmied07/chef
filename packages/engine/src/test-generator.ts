@@ -3,24 +3,31 @@
  */
 
 import type { GeneratedCode, GeneratedTests } from './types';
+import { callAIService } from './utils/ai-bridge';
 
 /**
- * Generates tests for the generated code
+ * Generates tests for the generated code using AI
  */
 export async function generateTests(
   code: GeneratedCode
 ): Promise<GeneratedTests> {
-  // TODO: Implement AI-powered test generation
-  // This will:
-  // - Generate unit tests for components and functions
-  // - Generate integration tests for APIs
-  // - Generate e2e tests for user flows
-  // - Calculate estimated coverage
-  
-  return {
-    files: [],
-    coverage: 0,
-  };
+  try {
+    const result = await callAIService('generate_tests', {
+      code
+    });
+    
+    return {
+      files: result.files || [],
+      coverage: result.coverage || 0,
+    };
+  } catch (error) {
+    console.error('Error generating tests:', error);
+    // Fallback to no tests
+    return {
+      files: [],
+      coverage: 0,
+    };
+  }
 }
 
 /**
