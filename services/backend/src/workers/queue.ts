@@ -135,8 +135,22 @@ export function startWorker(): void {
     logger.info(`✅ Job ${job.id} completed successfully`);
   });
 
-  worker.on('failed', (job, err) => {
+  worker.on('failed', async (job, err) => {
     logger.error(`❌ Job ${job?.id} failed:`, err.message);
+    
+    // Move to dead letter queue after all retries exhausted
+    if (job && job.attemptsMade >= (job.opts.attempts || 3)) {
+      try {
+        const dlq = getDeadLetterQueue();
+        await dlq.add('failed_job', job.data, {
+          jobId: `dlq_${job.data.jobId}`,
+          priority: PRIORITY_MAP[job.data.priority || 'normal'],
+        });
+        logger.info(`📮 Job ${job.id} moved to dead letter queue`);
+      } catch (error) {
+        logger.error('Failed to move job to DLQ:', error);
+      }
+    }
   });
 
   worker.on('progress', (job, progress) => {
