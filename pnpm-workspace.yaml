@@ -1,6 +1,16 @@
 packages:
+  # Frontend applications
+  - 'apps/*'
+  
+  # Shared packages
+  - 'packages/*'
+  
+  # Backend services
+  - 'services/*'
+  
+  # Legacy packages (will be migrated)
   - 'chefshot'
   - 'test-kitchen'
-  - 'chef-agent'
-  # You can add more workspace packages here later if needed
-  # - "packages/*"
+  
+  # Infrastructure configuration
+  # - 'infra/*'  # Uncomment when needed
