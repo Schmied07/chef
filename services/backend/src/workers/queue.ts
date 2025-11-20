@@ -8,12 +8,22 @@ import { logger } from '../utils/logger';
 import { processBuildJob } from './docker-processor';
 import { sendWebhook } from '../services/webhook';
 import { config } from '../config';
-import type { BuildJob, BuildResult } from '../types/job';
+import type { BuildJob, BuildResult, JobPriority } from '../types/job';
 
 const QUEUE_NAME = 'build_queue';
+const DLQ_NAME = 'build_queue_dead_letter';
 
 let buildQueue: Queue<BuildJob> | null = null;
+let deadLetterQueue: Queue<BuildJob> | null = null;
 let worker: Worker<BuildJob, BuildResult> | null = null;
+
+// Priority mapping for BullMQ (higher number = higher priority)
+const PRIORITY_MAP: Record<JobPriority, number> = {
+  critical: 1,
+  high: 2,
+  normal: 3,
+  low: 4,
+};
 
 /**
  * Initialize the build queue
