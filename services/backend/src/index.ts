@@ -48,6 +48,7 @@ app.get('/health', async (_req: Request, res: Response) => {
 app.use('/v1/projects', projectsRouter);
 app.use('/v1/projects', artifactsRouter);
 app.use('/v1/hooks', hooksRouter);
+app.use('/v1/generate', generateRouter);
 
 // Error handler
 app.use(errorHandler);
