@@ -10,7 +10,10 @@ export interface BuildJob {
   executionMode: 'webcontainer' | 'docker';
   strategy: BuildStrategy;
   metadata: JobMetadata;
+  priority?: JobPriority;
 }
+
+export type JobPriority = 'low' | 'normal' | 'high' | 'critical';
 
 export interface FileItem {
   path: string;
