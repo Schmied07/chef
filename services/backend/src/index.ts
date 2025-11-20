@@ -44,6 +44,12 @@ app.get('/health', async (_req: Request, res: Response) => {
   });
 });
 
+// Metrics endpoint
+app.get('/metrics', (_req: Request, res: Response) => {
+  const { metrics } = require('./utils/metrics');
+  res.json(metrics.getAllMetrics());
+});
+
 // API routes
 app.use('/v1/projects', projectsRouter);
 app.use('/v1/projects', artifactsRouter);
