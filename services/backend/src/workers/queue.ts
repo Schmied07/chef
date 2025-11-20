@@ -1,53 +1,179 @@
 /**
- * Worker queue using BullMQ
+ * Worker queue using BullMQ with Docker processor
  */
 
-import { Queue, Worker } from 'bullmq';
-import { Redis } from 'ioredis';
+import { Queue, Worker, Job } from 'bullmq';
+import { getRedisClient } from '../services/redis';
 import { logger } from '../utils/logger';
-import { processProject } from './processor';
+import { processBuildJob } from './docker-processor';
+import { sendWebhook } from '../services/webhook';
+import { config } from '../config';
+import type { BuildJob, BuildResult } from '../types/job';
 
-const connection = new Redis({
-  host: process.env.REDIS_HOST || 'localhost',
-  port: parseInt(process.env.REDIS_PORT || '6379'),
-  maxRetriesPerRequest: null,
-});
+const QUEUE_NAME = 'build_queue';
 
-const projectQueue = new Queue('projects', { connection });
+let buildQueue: Queue<BuildJob> | null = null;
+let worker: Worker<BuildJob, BuildResult> | null = null;
 
-// Worker to process projects
-const worker = new Worker(
-  'projects',
-  async (job) => {
-    logger.info(`Processing project ${job.data.id}`);
-    try {
-      const result = await processProject(job.data);
-      return result;
-    } catch (error) {
-      logger.error(`Error processing project ${job.data.id}:`, error);
-      throw error;
-    }
-  },
-  {
-    connection,
-    concurrency: parseInt(process.env.WORKER_CONCURRENCY || '5'),
+/**
+ * Initialize the build queue
+ */
+export function getBuildQueue(): Queue<BuildJob> {
+  if (!buildQueue) {
+    const connection = getRedisClient();
+    buildQueue = new Queue<BuildJob>(QUEUE_NAME, { connection });
+
+    buildQueue.on('error', (error) => {
+      logger.error('Build queue error:', error);
+    });
+
+    logger.info('✅ Build queue initialized');
   }
-);
 
-worker.on('completed', (job) => {
-  logger.info(`Project ${job.data.id} completed`);
-});
+  return buildQueue;
+}
 
-worker.on('failed', (job, err) => {
-  logger.error(`Project ${job?.data.id} failed:`, err);
-});
+/**
+ * Start the worker to process build jobs
+ */
+export function startWorker(): void {
+  if (worker) {
+    logger.warn('Worker already started');
+    return;
+  }
 
-export async function queueProject(project: any): Promise<void> {
-  await projectQueue.add('generate', project, {
+  const connection = getRedisClient();
+
+  worker = new Worker<BuildJob, BuildResult>(
+    QUEUE_NAME,
+    async (job: Job<BuildJob>) => {
+      logger.info(`⚙️ Processing build job ${job.data.jobId}`);
+
+      try {
+        // Update job progress
+        await job.updateProgress({
+          status: 'processing',
+          progress: 5,
+          message: 'Job picked up by worker',
+        });
+
+        // Process the build using Docker
+        const result = await processBuildJob(job.data);
+
+        // Send webhook to Convex with result
+        await sendWebhook({
+          jobId: job.data.jobId,
+          projectId: job.data.projectId,
+          status: result.status,
+          logs: result.logs,
+          artifacts: result.artifacts,
+          metrics: result.metrics,
+          error: result.error,
+        });
+
+        logger.info(`✅ Build job ${job.data.jobId} completed`);
+        return result;
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        logger.error(`❌ Build job ${job.data.jobId} failed:`, error);
+
+        // Send failure webhook
+        await sendWebhook({
+          jobId: job.data.jobId,
+          projectId: job.data.projectId,
+          status: 'failure',
+          logs: [],
+          error: errorMessage,
+          metrics: {
+            startTime: new Date().toISOString(),
+            endTime: new Date().toISOString(),
+            duration: 0,
+          },
+        });
+
+        throw error;
+      }
+    },
+    {
+      connection,
+      concurrency: config.worker.concurrency,
+      removeOnComplete: { count: 100 },
+      removeOnFail: { count: 500 },
+    }
+  );
+
+  // Worker event handlers
+  worker.on('completed', (job) => {
+    logger.info(`✅ Job ${job.id} completed successfully`);
+  });
+
+  worker.on('failed', (job, err) => {
+    logger.error(`❌ Job ${job?.id} failed:`, err.message);
+  });
+
+  worker.on('progress', (job, progress) => {
+    logger.info(`⏳ Job ${job.id} progress:`, progress);
+  });
+
+  worker.on('error', (error) => {
+    logger.error('Worker error:', error);
+  });
+
+  logger.info(`⚙️ Worker started with concurrency ${config.worker.concurrency}`);
+}
+
+/**
+ * Stop the worker
+ */
+export async function stopWorker(): Promise<void> {
+  if (worker) {
+    await worker.close();
+    worker = null;
+    logger.info('Worker stopped');
+  }
+}
+
+/**
+ * Add a build job to the queue
+ */
+export async function queueBuildJob(job: BuildJob): Promise<string> {
+  const queue = getBuildQueue();
+
+  const bullJob = await queue.add('build', job, {
+    jobId: job.jobId,
     attempts: 3,
     backoff: {
       type: 'exponential',
       delay: 2000,
     },
+    removeOnComplete: true,
+    removeOnFail: false,
   });
+
+  logger.info(`📥 Build job ${job.jobId} queued`);
+  return bullJob.id || job.jobId;
+}
+
+/**
+ * Get job status
+ */
+export async function getJobStatus(jobId: string) {
+  const queue = getBuildQueue();
+  const job = await queue.getJob(jobId);
+
+  if (!job) {
+    return null;
+  }
+
+  const state = await job.getState();
+  const progress = job.progress;
+
+  return {
+    id: job.id,
+    state,
+    progress,
+    data: job.data,
+    returnvalue: job.returnvalue,
+    failedReason: job.failedReason,
+  };
 }
