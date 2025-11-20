@@ -29,6 +29,9 @@ export class DockerProcessor {
     this.startTime = new Date().toISOString();
     this.buildDir = path.join(config.build.dir, job.jobId);
 
+    // Start metrics tracking
+    metrics.startJob(job.jobId);
+
     try {
       // Phase 1: Prepare filesystem
       await this.updateProgress(job.jobId, 'preparing', 10, 'Preparing filesystem...');
