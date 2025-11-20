@@ -52,8 +52,14 @@ export class DockerProcessor {
 
       // Phase 5: Complete
       await this.updateProgress(job.jobId, 'completed', 100, 'Build completed successfully');
+      metrics.updatePhase(job.jobId, 'completed');
 
       const endTime = new Date().toISOString();
+      const duration = new Date(endTime).getTime() - new Date(this.startTime).getTime();
+
+      // Complete metrics tracking
+      metrics.completeJob(job.jobId, 'success');
+
       return {
         jobId: job.jobId,
         status: 'success',
@@ -62,12 +68,15 @@ export class DockerProcessor {
         metrics: {
           startTime: this.startTime,
           endTime,
-          duration: new Date(endTime).getTime() - new Date(this.startTime).getTime(),
+          duration,
         },
       };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       this.addLog('error', errorMessage, 'system');
+
+      // Complete metrics with failure
+      metrics.completeJob(job.jobId, 'failure');
 
       return {
         jobId: job.jobId,
