@@ -44,6 +44,24 @@ export function getBuildQueue(): Queue<BuildJob> {
 }
 
 /**
+ * Initialize the dead letter queue
+ */
+export function getDeadLetterQueue(): Queue<BuildJob> {
+  if (!deadLetterQueue) {
+    const connection = getRedisClient();
+    deadLetterQueue = new Queue<BuildJob>(DLQ_NAME, { connection });
+
+    deadLetterQueue.on('error', (error) => {
+      logger.error('Dead letter queue error:', error);
+    });
+
+    logger.info('✅ Dead letter queue initialized');
+  }
+
+  return deadLetterQueue;
+}
+
+/**
  * Start the worker to process build jobs
  */
 export function startWorker(): void {
