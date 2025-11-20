@@ -180,9 +180,11 @@ export async function stopWorker(): Promise<void> {
  */
 export async function queueBuildJob(job: BuildJob): Promise<string> {
   const queue = getBuildQueue();
+  const priority = job.priority || 'normal';
 
   const bullJob = await queue.add('build', job, {
     jobId: job.jobId,
+    priority: PRIORITY_MAP[priority],
     attempts: 3,
     backoff: {
       type: 'exponential',
@@ -192,7 +194,7 @@ export async function queueBuildJob(job: BuildJob): Promise<string> {
     removeOnFail: false,
   });
 
-  logger.info(`📥 Build job ${job.jobId} queued`);
+  logger.info(`📥 Build job ${job.jobId} queued with priority: ${priority}`);
   return bullJob.id || job.jobId;
 }
 
