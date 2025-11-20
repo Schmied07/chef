@@ -6,7 +6,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import type { BuildJob, BuildResult, LogEntry, JobProgress } from '../types/job';
+import type { BuildJob, BuildResult, LogEntry, JobProgress, TestResults } from '../types/job';
 import { logger } from '../utils/logger';
 import { metrics } from '../utils/metrics';
 import { config } from '../config';
