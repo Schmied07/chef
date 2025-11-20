@@ -35,6 +35,7 @@ export class DockerProcessor {
     try {
       // Phase 1: Prepare filesystem
       await this.updateProgress(job.jobId, 'preparing', 10, 'Preparing filesystem...');
+      metrics.updatePhase(job.jobId, 'preparing');
       await this.prepareFilesystem(job);
 
       // Phase 2: Install dependencies
