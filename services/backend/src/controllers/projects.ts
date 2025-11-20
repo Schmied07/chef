@@ -4,38 +4,60 @@
 
 import type { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import { queueProject } from '../workers/queue';
-import { getProject, updateProject, addLog } from '../db/projects';
+import { queueBuildJob, getJobStatus } from '../workers/queue';
+import { getProject, createProject as createProjectDb, updateProject, addLog } from '../db/projects';
 import { logger } from '../utils/logger';
+import type { BuildJob } from '../types/job';
 
 export async function createProject(req: Request, res: Response) {
   try {
-    const { prompt, config } = req.body;
+    const { files, dependencies, strategy, metadata } = req.body;
 
-    if (!prompt) {
-      return res.status(400).json({ error: 'Prompt is required' });
+    if (!files || !Array.isArray(files)) {
+      return res.status(400).json({ error: 'Files array is required' });
     }
 
+    const jobId = uuidv4();
     const projectId = uuidv4();
 
-    // Create project record
-    const project = {
-      id: projectId,
-      prompt,
-      config: config || {},
-      status: 'queued' as const,
-      createdAt: new Date().toISOString(),
+    // Create build job
+    const buildJob: BuildJob = {
+      jobId,
+      projectId,
+      files,
+      dependencies: dependencies || {},
+      executionMode: 'docker',
+      strategy: strategy || {
+        runtime: 'node',
+        version: '18',
+        installCommand: 'npm install',
+        buildCommand: 'npm run build',
+      },
+      metadata: {
+        ...metadata,
+        timestamp: new Date().toISOString(),
+      },
     };
 
-    // Queue for processing
-    await queueProject(project);
+    // Save project to database
+    await createProjectDb({
+      id: projectId,
+      prompt: `Build with ${files.length} files`,
+      config: buildJob,
+      status: 'queued',
+      createdAt: new Date().toISOString(),
+    });
 
-    logger.info(`Project ${projectId} created and queued`);
+    // Queue build job
+    await queueBuildJob(buildJob);
+
+    logger.info(`Project ${projectId} created and build job ${jobId} queued`);
 
     res.status(201).json({
-      id: projectId,
+      projectId,
+      jobId,
       status: 'queued',
-      message: 'Project queued for generation',
+      message: 'Build job queued successfully',
     });
   } catch (error) {
     logger.error('Error creating project:', error);
