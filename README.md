@@ -118,3 +118,34 @@ Note: Chef is accessible at http://127.0.0.1:{port}/ and will not work properly 
 - `template/` contains the template that we use to start all Chef projects.
 
 - `test-kitchen/` contains a test harness for the Chef agent loop.
+
+- **`packages/`** (NEW - Sprint 0) - Monorepo packages
+  - `engine/` - AI generation engine with @chef/engine
+  - `compiler/` - Template compiler
+  - `templates/` - Project templates
+
+- **`services/backend/`** (NEW - Sprint 2) - Backend API & Workers
+  - REST API for project management
+  - AI code generation with Docker sandbox
+  - BullMQ job queue with Redis
+  - 5-phase build pipeline
+
+## 🆕 Recent Updates (Sprint 2 Complete ✅)
+
+### Workers & Sandbox Implementation
+
+- ✅ **Docker Sandbox** - Isolated builds with resource limits
+- ✅ **BullMQ Queue** - Job queue with Redis persistence
+- ✅ **AI Integration** - Full integration with @chef/engine
+- ✅ **Build Pipeline** - 5-phase automated build process
+- ✅ **Artifact Management** - Collection and download of build outputs
+- ✅ **Production Ready** - Docker Compose setup with monitoring
+
+**Quick Start:**
+```bash
+cd /app/services/backend
+bash scripts/setup.sh
+docker-compose up -d
+```
+
+See [SPRINT2-COMPLETE.md](SPRINT2-COMPLETE.md) for full documentation.
