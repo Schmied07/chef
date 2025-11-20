@@ -43,6 +43,18 @@ export interface BuildResult {
   artifacts?: Artifact[];
   metrics: BuildMetrics;
   error?: string;
+  testResults?: TestResults;
+}
+
+export interface TestResults {
+  executed: boolean;
+  passed: boolean;
+  total: number;
+  passed_count: number;
+  failed_count: number;
+  skipped_count: number;
+  duration: number;
+  output: string;
 }
 
 export interface LogEntry {
