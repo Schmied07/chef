@@ -221,3 +221,102 @@ export async function getJobStatus(jobId: string) {
     failedReason: job.failedReason,
   };
 }
+
+/**
+ * Get queue statistics
+ */
+export async function getQueueStats() {
+  const queue = getBuildQueue();
+  const dlq = getDeadLetterQueue();
+
+  const [
+    waiting,
+    active,
+    completed,
+    failed,
+    delayed,
+    waitingChildren,
+    dlqCount,
+  ] = await Promise.all([
+    queue.getWaitingCount(),
+    queue.getActiveCount(),
+    queue.getCompletedCount(),
+    queue.getFailedCount(),
+    queue.getDelayedCount(),
+    queue.getWaitingChildrenCount(),
+    dlq.getWaitingCount(),
+  ]);
+
+  return {
+    queue: {
+      waiting,
+      active,
+      completed,
+      failed,
+      delayed,
+      waitingChildren,
+      total: waiting + active + completed + failed + delayed,
+    },
+    deadLetterQueue: {
+      count: dlqCount,
+    },
+  };
+}
+
+/**
+ * Get jobs from dead letter queue
+ */
+export async function getDeadLetterJobs(start = 0, end = 10) {
+  const dlq = getDeadLetterQueue();
+  const jobs = await dlq.getJobs(['waiting', 'active', 'completed', 'failed'], start, end);
+  
+  return jobs.map(job => ({
+    id: job.id,
+    data: job.data,
+    failedReason: job.failedReason,
+    attemptsMade: job.attemptsMade,
+    timestamp: job.timestamp,
+  }));
+}
+
+/**
+ * Retry a job from the dead letter queue
+ */
+export async function retryDeadLetterJob(dlqJobId: string): Promise<string | null> {
+  const dlq = getDeadLetterQueue();
+  const job = await dlq.getJob(dlqJobId);
+
+  if (!job) {
+    logger.warn(`DLQ job ${dlqJobId} not found`);
+    return null;
+  }
+
+  // Re-queue the job with a new ID
+  const originalJobId = job.data.jobId.replace('dlq_', '');
+  const newJob = { ...job.data, jobId: `retry_${originalJobId}_${Date.now()}` };
+  
+  const newJobId = await queueBuildJob(newJob);
+  
+  // Remove from DLQ
+  await job.remove();
+  
+  logger.info(`🔄 Retrying job ${dlqJobId} as ${newJobId}`);
+  return newJobId;
+}
+
+/**
+ * Clear dead letter queue
+ */
+export async function clearDeadLetterQueue(): Promise<number> {
+  const dlq = getDeadLetterQueue();
+  const jobs = await dlq.getJobs(['waiting', 'failed', 'completed']);
+  
+  let count = 0;
+  for (const job of jobs) {
+    await job.remove();
+    count++;
+  }
+  
+  logger.info(`🗑️ Cleared ${count} jobs from dead letter queue`);
+  return count;
+}
