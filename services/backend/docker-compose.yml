@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: chef-redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - chef-network
+
+  backend:
+    build:
+      context: ../..
+      dockerfile: services/backend/Dockerfile
+    container_name: chef-backend
+    ports:
+      - '3001:3001'
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=3001
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - WORKER_CONCURRENCY=${WORKER_CONCURRENCY:-5}
+      - WORKER_TIMEOUT=${WORKER_TIMEOUT:-300000}
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - DOCKER_MEMORY_LIMIT=${DOCKER_MEMORY_LIMIT:-512m}
+      - DOCKER_CPU_LIMIT=${DOCKER_CPU_LIMIT:-1}
+      - BUILD_DIR=/tmp/chef-builds
+      - ARTIFACTS_DIR=/tmp/chef-artifacts
+      - CONVEX_URL=${CONVEX_URL}
+      - CONVEX_WEBHOOK_SECRET=${CONVEX_WEBHOOK_SECRET}
+      - EMERGENT_LLM_KEY=${EMERGENT_LLM_KEY}
+      - AI_PROVIDER=${AI_PROVIDER:-openai}
+      - AI_MODEL=${AI_MODEL:-gpt-4o}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - build-data:/tmp/chef-builds
+      - artifacts-data:/tmp/chef-artifacts
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'node', '-e', "require('http').get('http://localhost:3001/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - chef-network
+    restart: unless-stopped
+
+volumes:
+  redis-data:
+    driver: local
+  build-data:
+    driver: local
+  artifacts-data:
+    driver: local
+
+networks:
+  chef-network:
+    driver: bridge

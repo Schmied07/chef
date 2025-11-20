@@ -1,0 +1,15 @@
+node_modules
+dist
+.env
+.env.local
+*.log
+.DS_Store
+.git
+.github
+coverage
+.vscode
+.idea
+*.test.ts
+*.spec.ts
+__tests__
+__mocks__
