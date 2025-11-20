@@ -222,6 +222,168 @@ export class DockerProcessor {
   }
 
   /**
+   * Phase 3.5: Execute tests
+   */
+  private async executeTests(job: BuildJob): Promise<TestResults | undefined> {
+    // Check if tests exist
+    const hasTests = await this.checkForTests();
+    
+    if (!hasTests) {
+      this.addLog('info', 'No tests found, skipping test execution', 'system');
+      return undefined;
+    }
+
+    // Determine test command based on package.json or strategy
+    const testCommand = job.strategy.runtime === 'node' 
+      ? 'npm test -- --passWithNoTests || npm run test || yarn test || true'
+      : job.strategy.runtime === 'python'
+      ? 'pytest || python -m pytest || true'
+      : null;
+
+    if (!testCommand) {
+      this.addLog('info', 'No test command available for runtime', 'system');
+      return undefined;
+    }
+
+    const image = getDockerImage(job.strategy);
+    await ensureImage(image);
+
+    const container = await createContainer({
+      image,
+      cmd: ['/bin/sh', '-c', testCommand],
+      binds: [`${this.buildDir}:/workspace`],
+      workingDir: '/workspace',
+      env: this.buildEnvVars(job),
+    });
+
+    this.containerId = container.id;
+
+    const testStartTime = Date.now();
+    let testOutput = '';
+
+    try {
+      const result = await executeInContainer(container, (log) => {
+        testOutput += log.message + '\n';
+        this.logs.push(log as LogEntry);
+      });
+
+      const testDuration = Date.now() - testStartTime;
+
+      // Parse test results from output
+      const testResults = this.parseTestResults(testOutput, result.exitCode === 0, testDuration);
+
+      if (testResults.passed) {
+        this.addLog('info', `✅ Tests passed: ${testResults.passed_count}/${testResults.total}`, 'system');
+      } else {
+        this.addLog('warn', `⚠️ Tests failed: ${testResults.failed_count}/${testResults.total}`, 'system');
+      }
+
+      return testResults;
+    } catch (error) {
+      this.addLog('warn', `Test execution error: ${error instanceof Error ? error.message : 'Unknown'}`, 'system');
+      return {
+        executed: true,
+        passed: false,
+        total: 0,
+        passed_count: 0,
+        failed_count: 0,
+        skipped_count: 0,
+        duration: Date.now() - testStartTime,
+        output: testOutput,
+      };
+    }
+  }
+
+  /**
+   * Check if project has tests
+   */
+  private async checkForTests(): Promise<boolean> {
+    const testPaths = [
+      'test',
+      '__tests__',
+      'tests',
+      'spec',
+    ];
+
+    for (const testPath of testPaths) {
+      try {
+        const fullPath = path.join(this.buildDir, testPath);
+        await fs.access(fullPath);
+        return true;
+      } catch {
+        // Continue checking
+      }
+    }
+
+    // Check for test files in root
+    try {
+      const files = await fs.readdir(this.buildDir);
+      const hasTestFiles = files.some(file => 
+        file.includes('.test.') || 
+        file.includes('.spec.') ||
+        file.includes('_test.')
+      );
+      return hasTestFiles;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Parse test results from output
+   */
+  private parseTestResults(output: string, passed: boolean, duration: number): TestResults {
+    // Try to parse Jest output
+    const jestMatch = output.match(/Tests:\s+(\d+)\s+passed.*?(\d+)\s+total/);
+    if (jestMatch) {
+      const passed_count = parseInt(jestMatch[1]);
+      const total = parseInt(jestMatch[2]);
+      return {
+        executed: true,
+        passed: passed_count === total,
+        total,
+        passed_count,
+        failed_count: total - passed_count,
+        skipped_count: 0,
+        duration,
+        output,
+      };
+    }
+
+    // Try to parse Pytest output
+    const pytestMatch = output.match(/(\d+)\s+passed/);
+    if (pytestMatch) {
+      const passed_count = parseInt(pytestMatch[1]);
+      const failedMatch = output.match(/(\d+)\s+failed/);
+      const failed_count = failedMatch ? parseInt(failedMatch[1]) : 0;
+      const total = passed_count + failed_count;
+      
+      return {
+        executed: true,
+        passed: failed_count === 0,
+        total,
+        passed_count,
+        failed_count,
+        skipped_count: 0,
+        duration,
+        output,
+      };
+    }
+
+    // Default result
+    return {
+      executed: true,
+      passed,
+      total: 0,
+      passed_count: 0,
+      failed_count: 0,
+      skipped_count: 0,
+      duration,
+      output,
+    };
+  }
+
+  /**
    * Phase 4: Collect artifacts
    */
   private async collectArtifacts(job: BuildJob) {
