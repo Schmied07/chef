@@ -56,6 +56,7 @@ app.use('/v1/projects', projectsRouter);
 app.use('/v1/projects', artifactsRouter);
 app.use('/v1/hooks', hooksRouter);
 app.use('/v1/generate', generateRouter);
+app.use('/v1/queue', queueRouter);
 
 // Error handler
 app.use(errorHandler);
