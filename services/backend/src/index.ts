@@ -10,6 +10,7 @@ import { projectsRouter } from './routes/projects';
 import { hooksRouter } from './routes/hooks';
 import { artifactsRouter } from './routes/artifacts';
 import { generateRouter } from './routes/generate';
+import { queueRouter } from './routes/queue';
 import { errorHandler } from './middleware/error-handler';
 import { logger } from './utils/logger';
 import { startWorker, stopWorker } from './workers/queue';
