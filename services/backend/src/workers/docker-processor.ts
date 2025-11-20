@@ -43,8 +43,12 @@ export class DockerProcessor {
       await this.installDependencies(job);
 
       // Phase 3: Execute build
-      await this.updateProgress(job.jobId, 'building', 60, 'Running build...');
+      await this.updateProgress(job.jobId, 'building', 50, 'Running build...');
       const buildOutput = await this.executeBuild(job);
+
+      // Phase 3.5: Run tests (if tests exist)
+      await this.updateProgress(job.jobId, 'building', 70, 'Running tests...');
+      const testResults = await this.executeTests(job);
 
       // Phase 4: Collect artifacts
       await this.updateProgress(job.jobId, 'completed', 90, 'Collecting artifacts...');
@@ -65,6 +69,7 @@ export class DockerProcessor {
         status: 'success',
         logs: this.logs,
         artifacts,
+        testResults,
         metrics: {
           startTime: this.startTime,
           endTime,
