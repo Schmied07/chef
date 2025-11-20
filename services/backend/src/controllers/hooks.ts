@@ -8,18 +8,15 @@ import { logger } from '../utils/logger';
 
 export async function handleWorkerResult(req: Request, res: Response) {
   try {
-    const { projectId, status, result, error } = req.body;
+    const { jobId, projectId, status, logs, artifacts, metrics, error } = req.body;
 
-    if (!projectId) {
-      return res.status(400).json({ error: 'Project ID is required' });
-    }
+    logger.info(`Received worker result for job ${jobId}`);
 
-    logger.info(`Worker result received for project ${projectId}: ${status}`);
-
-    // Update project with worker result
+    // Update project with results
     await updateProject(projectId, {
-      status,
-      result,
+      status: status === 'success' ? 'completed' : 'failed',
+      progress: 100,
+      result: { logs, artifacts, metrics },
       error,
       completedAt: new Date().toISOString(),
     });
@@ -27,6 +24,6 @@ export async function handleWorkerResult(req: Request, res: Response) {
     res.json({ success: true });
   } catch (error) {
     logger.error('Error handling worker result:', error);
-    res.status(500).json({ error: 'Failed to process worker result' });
+    res.status(500).json({ error: 'Failed to handle worker result' });
   }
 }

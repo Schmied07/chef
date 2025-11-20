@@ -3,17 +3,14 @@
  */
 
 import { Router } from 'express';
-import { getArtifacts, downloadArtifact, deleteArtifacts } from '../controllers/artifacts';
+import { getArtifacts, downloadArtifact } from '../controllers/artifacts';
 
 const router = Router();
 
-// GET /v1/projects/:projectId/artifacts - List all artifacts
-router.get('/:projectId/artifacts', getArtifacts);
+// GET /v1/projects/:id/artifacts - List artifacts
+router.get('/:id/artifacts', getArtifacts);
 
-// GET /v1/projects/:projectId/artifacts/:filename - Download specific artifact
-router.get('/:projectId/artifacts/:filename', downloadArtifact);
-
-// DELETE /v1/projects/:projectId/artifacts - Delete all artifacts
-router.delete('/:projectId/artifacts', deleteArtifacts);
+// GET /v1/projects/:id/artifacts/:name - Download artifact
+router.get('/:id/artifacts/:name', downloadArtifact);
 
 export { router as artifactsRouter };

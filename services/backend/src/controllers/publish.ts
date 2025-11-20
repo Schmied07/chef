@@ -16,16 +16,18 @@ export async function publishProject(req: Request, res: Response) {
     }
 
     if (project.status !== 'completed') {
-      return res.status(400).json({ error: 'Project is not ready to publish' });
+      return res.status(400).json({ error: 'Project must be completed before publishing' });
     }
 
     // TODO: Implement actual publishing logic
+    // This could deploy to Vercel, Netlify, etc.
+
     logger.info(`Publishing project ${id}`);
 
     res.json({
-      id: project.id,
-      status: 'published',
-      url: `https://chef-projects.example.com/${id}`,
+      success: true,
+      message: 'Project published successfully',
+      url: `https://chef-project-${id}.vercel.app`, // Mock URL
     });
   } catch (error) {
     logger.error('Error publishing project:', error);

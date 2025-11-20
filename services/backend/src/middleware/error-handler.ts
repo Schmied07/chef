@@ -1,20 +1,24 @@
 /**
- * Error handling middleware
+ * Global error handler middleware
  */
 
 import type { Request, Response, NextFunction } from 'express';
 import { logger } from '../utils/logger';
 
 export function errorHandler(
-  err: Error,
+  error: Error,
   req: Request,
   res: Response,
   next: NextFunction
 ) {
-  logger.error('Unhandled error:', err);
+  logger.error('Unhandled error:', error);
 
-  res.status(500).json({
-    error: 'Internal server error',
-    message: process.env.NODE_ENV === 'development' ? err.message : undefined,
+  const statusCode = res.statusCode !== 200 ? res.statusCode : 500;
+
+  res.status(statusCode).json({
+    error: {
+      message: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+    },
   });
 }

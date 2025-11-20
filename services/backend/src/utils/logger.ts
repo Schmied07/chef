@@ -1,46 +1,20 @@
 /**
- * Structured logger
+ * Structured logging utility
  */
 
-type LogLevel = 'info' | 'warn' | 'error' | 'debug';
-
-interface LogEntry {
-  level: LogLevel;
-  message: string;
-  timestamp: string;
-  data?: unknown;
-}
-
-class Logger {
-  private log(level: LogLevel, message: string, data?: unknown) {
-    const entry: LogEntry = {
-      level,
-      message,
-      timestamp: new Date().toISOString(),
-      data,
-    };
-
-    // Structured JSON logging
-    console.log(JSON.stringify(entry));
-  }
-
-  info(message: string, data?: unknown) {
-    this.log('info', message, data);
-  }
-
-  warn(message: string, data?: unknown) {
-    this.log('warn', message, data);
-  }
-
-  error(message: string, data?: unknown) {
-    this.log('error', message, data);
-  }
-
-  debug(message: string, data?: unknown) {
+export const logger = {
+  info: (message: string, ...args: any[]) => {
+    console.log(`[INFO] ${new Date().toISOString()} - ${message}`, ...args);
+  },
+  error: (message: string, ...args: any[]) => {
+    console.error(`[ERROR] ${new Date().toISOString()} - ${message}`, ...args);
+  },
+  warn: (message: string, ...args: any[]) => {
+    console.warn(`[WARN] ${new Date().toISOString()} - ${message}`, ...args);
+  },
+  debug: (message: string, ...args: any[]) => {
     if (process.env.NODE_ENV === 'development') {
-      this.log('debug', message, data);
+      console.debug(`[DEBUG] ${new Date().toISOString()} - ${message}`, ...args);
     }
-  }
-}
-
-export const logger = new Logger();
+  },
+};
