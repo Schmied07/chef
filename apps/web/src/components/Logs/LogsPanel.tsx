@@ -140,7 +140,7 @@ export default function LogsPanel() {
 }
 
 function LogEntry({ log }: { log: any }) {
-  const levelColors = {
+  const levelColors: Record<string, string> = {
     info: 'text-blue-400',
     warn: 'text-yellow-400',
     error: 'text-red-400',
@@ -152,7 +152,7 @@ function LogEntry({ log }: { log: any }) {
       <span className="flex-shrink-0 text-bolt-elements-textSecondary">
         {log.timestamp.toLocaleTimeString()}
       </span>
-      <span className={classNames('flex-shrink-0 font-bold uppercase', levelColors[log.level])}>
+      <span className={classNames('flex-shrink-0 font-bold uppercase', levelColors[log.level] || 'text-bolt-elements-textPrimary')}>
         [{log.level}]
       </span>
       {log.phase && (
