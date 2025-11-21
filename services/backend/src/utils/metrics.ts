@@ -91,7 +91,53 @@ class MetricsCollector {
       jobs: Array.from(this.jobs.values()),
       counters: Object.fromEntries(this.counters),
       summary: this.getSummary(),
+      timestamp: new Date().toISOString(),
     };
+  }
+
+  /**
+   * Get metrics in Prometheus format
+   */
+  getPrometheusMetrics(): string {
+    const lines: string[] = [];
+    
+    // Help and type declarations
+    lines.push('# HELP chef_jobs_started_total Total number of jobs started');
+    lines.push('# TYPE chef_jobs_started_total counter');
+    lines.push(`chef_jobs_started_total ${this.counters.get('jobs_started') || 0}`);
+    
+    lines.push('# HELP chef_jobs_success_total Total number of successful jobs');
+    lines.push('# TYPE chef_jobs_success_total counter');
+    lines.push(`chef_jobs_success_total ${this.counters.get('jobs_success') || 0}`);
+    
+    lines.push('# HELP chef_jobs_failure_total Total number of failed jobs');
+    lines.push('# TYPE chef_jobs_failure_total counter');
+    lines.push(`chef_jobs_failure_total ${this.counters.get('jobs_failure') || 0}`);
+    
+    const summary = this.getSummary();
+    lines.push('# HELP chef_jobs_in_progress Current number of jobs in progress');
+    lines.push('# TYPE chef_jobs_in_progress gauge');
+    lines.push(`chef_jobs_in_progress ${summary.inProgress}`);
+    
+    lines.push('# HELP chef_jobs_success_rate Job success rate percentage');
+    lines.push('# TYPE chef_jobs_success_rate gauge');
+    lines.push(`chef_jobs_success_rate ${summary.successRate.toFixed(2)}`);
+    
+    lines.push('# HELP chef_jobs_avg_duration_ms Average job duration in milliseconds');
+    lines.push('# TYPE chef_jobs_avg_duration_ms gauge');
+    lines.push(`chef_jobs_avg_duration_ms ${summary.avgDuration}`);
+    
+    // Phase counters
+    for (const [key, value] of this.counters.entries()) {
+      if (key.startsWith('phase_')) {
+        const phase = key.replace('phase_', '');
+        lines.push(`# HELP chef_phase_${phase}_total Total number of times phase ${phase} was executed`);
+        lines.push(`# TYPE chef_phase_${phase}_total counter`);
+        lines.push(`chef_phase_${phase}_total ${value}`);
+      }
+    }
+    
+    return lines.join('\n') + '\n';
   }
 
   /**
