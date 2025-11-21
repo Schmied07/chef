@@ -60,7 +60,7 @@ function FileTreeNode({ node, level }: { node: FileNode; level: number }) {
         )}
         
         {node.type === 'directory' ? (
-          <FolderIcon className="h-4 w-4 flex-shrink-0 text-blue-500" />
+          <span className="h-4 w-4 flex-shrink-0 text-blue-500">📁</span>
         ) : (
           <FileIcon className="h-4 w-4 flex-shrink-0 text-bolt-elements-textSecondary" />
         )}
