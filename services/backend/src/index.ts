@@ -22,6 +22,7 @@ import { getRedisClient, checkRedisHealth } from './services/redis';
 import { checkDockerHealth } from './services/docker';
 import { initializeWebSocket, closeWebSocket, getConnectedClientsCount } from './services/websocket';
 import { startWebhookRetryWorker, stopWebhookRetryWorker, getWebhookRetryStats } from './services/webhook-retry';
+import { globalRateLimiter } from './middleware/rate-limit';
 
 const app = express();
 const server = http.createServer(app);
