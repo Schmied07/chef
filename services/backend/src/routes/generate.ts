@@ -14,7 +14,6 @@ const router = Router();
 router.post(
   '/',
   generateRateLimiter,
-  sanitizeBody,
   validateBody(generateProjectSchema),
   generateProject
 );
