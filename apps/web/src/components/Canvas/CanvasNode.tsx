@@ -21,7 +21,7 @@ export default function CanvasNode({ node }: CanvasNodeProps) {
     })
   }));
 
-  const [{ isOver }, drop] = useDrop(() => ({
+  const [, drop] = useDrop(() => ({
     accept: ['COMPONENT', 'CANVAS_NODE'],
     hover: () => setHoveredNode(node.id),
     drop: () => setHoveredNode(null),
