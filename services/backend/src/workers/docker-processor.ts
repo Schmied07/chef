@@ -483,11 +483,22 @@ export class DockerProcessor {
     jobId: string,
     status: JobProgress['status'],
     progress: number,
-    message: string
+    message: string,
+    projectId?: string
   ): Promise<void> {
     this.addLog('info', message, 'system');
-    // TODO: Update Redis with progress
-    // await updateJobProgress(jobId, { status, progress, message });
+    
+    // Emit real-time progress via WebSocket
+    if (projectId) {
+      emitProgress({
+        jobId,
+        projectId,
+        status,
+        progress,
+        message,
+        phase: status,
+      });
+    }
   }
 }
 
