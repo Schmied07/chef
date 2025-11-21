@@ -44,6 +44,7 @@ app.use((req, res, next) => {
 app.get('/health', async (_req: Request, res: Response) => {
   const redisHealthy = await checkRedisHealth();
   const dockerHealthy = await checkDockerHealth();
+  const websocketEnabled = process.env.WEBSOCKET_ENABLED === 'true';
 
   res.json({
     status: redisHealthy && dockerHealthy ? 'ok' : 'degraded',
@@ -51,14 +52,28 @@ app.get('/health', async (_req: Request, res: Response) => {
     services: {
       redis: redisHealthy ? 'up' : 'down',
       docker: dockerHealthy ? 'up' : 'down',
+      websocket: websocketEnabled ? 'enabled' : 'disabled',
+    },
+    websocket: {
+      enabled: websocketEnabled,
+      connected_clients: websocketEnabled ? getConnectedClientsCount() : 0,
     },
   });
 });
 
-// Metrics endpoint
-app.get('/metrics', (_req: Request, res: Response) => {
-  const { metrics } = require('./utils/metrics');
-  res.json(metrics.getAllMetrics());
+// Metrics endpoint (JSON)
+app.get('/metrics', async (_req: Request, res: Response) => {
+  const webhookStats = await getWebhookRetryStats();
+  res.json({
+    ...metrics.getAllMetrics(),
+    webhookRetry: webhookStats,
+  });
+});
+
+// Metrics endpoint (Prometheus format)
+app.get('/metrics/prometheus', (_req: Request, res: Response) => {
+  res.set('Content-Type', 'text/plain');
+  res.send(metrics.getPrometheusMetrics());
 });
 
 // API routes
