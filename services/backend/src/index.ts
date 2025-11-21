@@ -66,6 +66,12 @@ app.use((req, res, next) => {
   next();
 });
 
+// CSP Reporting endpoint
+app.post('/csp-report', express.json({ type: 'application/csp-report' }), (req: Request, res: Response) => {
+  logger.warn('CSP Violation:', req.body);
+  res.status(204).send();
+});
+
 // Health check
 app.get('/health', async (_req: Request, res: Response) => {
   const redisHealthy = await checkRedisHealth();
