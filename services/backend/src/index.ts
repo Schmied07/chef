@@ -131,17 +131,21 @@ async function initialize() {
 process.on('SIGTERM', async () => {
   logger.info('SIGTERM received, shutting down gracefully...');
   await stopWorker();
+  await stopWebhookRetryWorker();
+  await closeWebSocket();
   process.exit(0);
 });
 
 process.on('SIGINT', async () => {
   logger.info('SIGINT received, shutting down gracefully...');
   await stopWorker();
+  await stopWebhookRetryWorker();
+  await closeWebSocket();
   process.exit(0);
 });
 
 // Start server
-app.listen(PORT, async () => {
+server.listen(PORT, async () => {
   logger.info(`🚀 Chef Backend API running on port ${PORT}`);
   await initialize();
 });
