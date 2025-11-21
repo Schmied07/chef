@@ -5,6 +5,8 @@
  */
 
 import express from 'express';
+import http from 'http';
+import cors from 'cors';
 import type { Request, Response } from 'express';
 import { projectsRouter } from './routes/projects';
 import { hooksRouter } from './routes/hooks';
@@ -13,11 +15,15 @@ import { generateRouter } from './routes/generate';
 import { queueRouter } from './routes/queue';
 import { errorHandler } from './middleware/error-handler';
 import { logger } from './utils/logger';
+import { metrics } from './utils/metrics';
 import { startWorker, stopWorker } from './workers/queue';
 import { getRedisClient, checkRedisHealth } from './services/redis';
 import { checkDockerHealth } from './services/docker';
+import { initializeWebSocket, closeWebSocket, getConnectedClientsCount } from './services/websocket';
+import { startWebhookRetryWorker, stopWebhookRetryWorker, getWebhookRetryStats } from './services/webhook-retry';
 
 const app = express();
+const server = http.createServer(app);
 const PORT = process.env.PORT || 3001;
 
 // Middleware
