@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useProjectStore } from '../../stores/projectStore';
 import { useEditorStore } from '../../stores/editorStore';
 import { FileNode } from '../../types';
-import { ChevronRightIcon, ChevronDownIcon, FileIcon, FolderIcon } from '@radix-ui/react-icons';
+import { ChevronRightIcon, ChevronDownIcon, FileIcon } from '@radix-ui/react-icons';
 import classNames from 'classnames';
 
 export default function FileTree() {
