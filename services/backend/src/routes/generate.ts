@@ -5,9 +5,8 @@
 import { Router } from 'express';
 import { generateProject } from '../controllers/generate';
 import { validateBody } from '../middleware/validation';
-import { sanitizeBody } from '../middleware/sanitization';
 import { generateRateLimiter } from '../middleware/rate-limit';
-import { generateProjectSchema } from '../schemas';
+import { generateProjectSchema } from '../schemas/generate';
 
 const router = Router();
 
