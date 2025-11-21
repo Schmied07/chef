@@ -7,12 +7,11 @@ import type { Request, Response } from 'express';
 import { createProject, getProjectStatus, getProjectLogs } from '../controllers/projects';
 import { publishProject } from '../controllers/publish';
 import { validateBody, validateParams, validateQuery } from '../middleware/validation';
-import { sanitizeBody } from '../middleware/sanitization';
 import {
   createProjectSchema,
   getProjectParamsSchema,
   projectStatusQuerySchema,
-} from '../schemas';
+} from '../schemas/project';
 
 const router = Router();
 
