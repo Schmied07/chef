@@ -29,30 +29,57 @@ import { loadEnv, getEnv } from './config/env';
 
 const app = express();
 const server = http.createServer(app);
-const PORT = process.env.PORT || 3001;
 
-// Security Middleware - Helmet with CSP
-app.use(
+// Load and validate environment variables at startup
+const env = loadEnv();
+const PORT = env.PORT;
+
+// CSP Nonce generation middleware
+app.use((req: Request, res: Response, next: NextFunction) => {
+  res.locals.cspNonce = crypto.randomBytes(16).toString('base64');
+  next();
+});
+
+// Security Middleware - Helmet with strict CSP + dynamic nonce
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const nonce = res.locals.cspNonce;
+  
   helmet({
     contentSecurityPolicy: {
+      useDefaults: true,
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'"], // Needed for preview iframe
-        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: [
+          "'self'",
+          env.CSP_NONCE_ENABLED ? `'nonce-${nonce}'` : "'unsafe-inline'",
+        ],
+        styleSrc: ["'self'", "'unsafe-inline'"], // CSS often needs inline styles
         imgSrc: ["'self'", 'data:', 'https:'],
-        connectSrc: ["'self'", 'ws:', 'wss:'],
+        connectSrc: ["'self'", 'ws:', 'wss:', 'https:'],
         fontSrc: ["'self'", 'data:'],
         objectSrc: ["'none'"],
         mediaSrc: ["'self'"],
         frameSrc: ["'self'"],
         frameAncestors: ["'self'"],
+        baseUri: ["'self'"],
+        formAction: ["'self'"],
+        upgradeInsecureRequests: env.NODE_ENV === 'production' ? [] : null,
       },
+      reportOnly: false,
     },
-    crossOriginEmbedderPolicy: false, // Allow iframe embedding
+    crossOriginEmbedderPolicy: false, // Allow iframe embedding for preview
     crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
     crossOriginResourcePolicy: { policy: 'cross-origin' },
-  })
-);
+    hsts: {
+      maxAge: 31536000, // 1 year
+      includeSubDomains: true,
+      preload: true,
+    },
+    noSniff: true,
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+    xssFilter: true,
+  })(req, res, next);
+});
 
 // CORS Middleware
 app.use(cors({
