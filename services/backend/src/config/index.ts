@@ -29,6 +29,15 @@ export const config = {
     url: process.env.CONVEX_URL || 'https://api.convex.dev',
     webhookSecret: process.env.CONVEX_WEBHOOK_SECRET || '',
   },
+  websocket: {
+    enabled: process.env.WEBSOCKET_ENABLED === 'true',
+    corsOrigin: process.env.WEBSOCKET_CORS_ORIGIN || '*',
+  },
+  webhookRetry: {
+    enabled: process.env.WEBHOOK_RETRY_ENABLED === 'true',
+    maxRetries: parseInt(process.env.WEBHOOK_MAX_RETRIES || '3'),
+    retryDelay: parseInt(process.env.WEBHOOK_RETRY_DELAY || '5000'),
+  },
 };
 
 export default config;
