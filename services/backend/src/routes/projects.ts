@@ -16,7 +16,7 @@ import {
 const router = Router();
 
 // POST /v1/projects - Create a new project
-router.post('/', sanitizeBody, validateBody(createProjectSchema), createProject);
+router.post('/', validateBody(createProjectSchema), createProject);
 
 // GET /v1/projects/:id/status - Get project status
 router.get(
