@@ -1,79 +1,68 @@
 /**
  * Validation middleware using Zod schemas
+ * Validates request body, params, and query
  */
 
 import type { Request, Response, NextFunction } from 'express';
 import { ZodSchema, ZodError } from 'zod';
 import { logger } from '../utils/logger';
 
+type ValidationTarget = 'body' | 'params' | 'query';
+
 /**
- * Validate request body against a Zod schema
+ * Creates validation middleware for a given Zod schema
  */
-export function validateBody(schema: ZodSchema) {
+export function validate(
+  schema: ZodSchema,
+  target: ValidationTarget = 'body'
+) {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      req.body = await schema.parseAsync(req.body);
+      const data = req[target];
+      const validated = await schema.parseAsync(data);
+      req[target] = validated;
       next();
     } catch (error) {
       if (error instanceof ZodError) {
-        logger.warn('Validation error:', error.errors);
-        return res.status(400).json({
+        logger.warn('Validation failed:', {
+          target,
+          errors: error.errors,
+          path: req.path,
+        });
+
+        res.status(400).json({
           error: 'Validation failed',
           details: error.errors.map((err) => ({
-            path: err.path.join('.'),
+            field: err.path.join('.'),
             message: err.message,
+            code: err.code,
           })),
         });
+      } else {
+        logger.error('Validation error:', error);
+        res.status(500).json({ error: 'Internal validation error' });
       }
-      next(error);
     }
   };
 }
 
 /**
- * Validate request params against a Zod schema
+ * Shorthand for body validation
+ */
+export function validateBody(schema: ZodSchema) {
+  return validate(schema, 'body');
+}
+
+/**
+ * Shorthand for params validation
  */
 export function validateParams(schema: ZodSchema) {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      req.params = await schema.parseAsync(req.params);
-      next();
-    } catch (error) {
-      if (error instanceof ZodError) {
-        logger.warn('Params validation error:', error.errors);
-        return res.status(400).json({
-          error: 'Invalid parameters',
-          details: error.errors.map((err) => ({
-            path: err.path.join('.'),
-            message: err.message,
-          })),
-        });
-      }
-      next(error);
-    }
-  };
+  return validate(schema, 'params');
 }
 
 /**
- * Validate request query against a Zod schema
+ * Shorthand for query validation
  */
 export function validateQuery(schema: ZodSchema) {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      req.query = await schema.parseAsync(req.query);
-      next();
-    } catch (error) {
-      if (error instanceof ZodError) {
-        logger.warn('Query validation error:', error.errors);
-        return res.status(400).json({
-          error: 'Invalid query parameters',
-          details: error.errors.map((err) => ({
-            path: err.path.join('.'),
-            message: err.message,
-          })),
-        });
-      }
-      next(error);
-    }
-  };
+  return validate(schema, 'query');
 }
