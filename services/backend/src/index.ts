@@ -27,6 +27,10 @@ const server = http.createServer(app);
 const PORT = process.env.PORT || 3001;
 
 // Middleware
+app.use(cors({
+  origin: process.env.WEBSOCKET_CORS_ORIGIN || '*',
+  credentials: true,
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
