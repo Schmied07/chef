@@ -69,17 +69,79 @@ This is the frontend application for Chef, built with React + Vite + TypeScript.
 
 ```bash
 # Install dependencies
-pnpm install
+cd /app/apps/web
+npm install
 
 # Start development server
-pnpm --filter @chef/web dev
+npm run dev
 
 # Build for production
-pnpm --filter @chef/web build
+npm run build
+
+# Preview production build
+npm run preview
 
 # Type check
-pnpm --filter @chef/web typecheck
+npm run typecheck
+
+# Lint
+npm run lint
 ```
+
+## Quick Start
+
+1. **Install dependencies:**
+   ```bash
+   cd /app/apps/web
+   npm install
+   ```
+
+2. **Configure environment:**
+   Create `.env` file:
+   ```
+   VITE_API_URL=http://localhost:3001
+   VITE_WS_URL=ws://localhost:3001/ws
+   ```
+
+3. **Start development server:**
+   ```bash
+   npm run dev
+   ```
+
+4. **Open browser:**
+   ```
+   http://localhost:5173
+   ```
+
+## Usage
+
+### Canvas Mode
+1. Click "Start Building" from home page
+2. Drag components from the left panel
+3. Drop on canvas to build your UI
+4. Select nodes to edit props in right panel
+5. Delete nodes with the X button
+
+### Code Mode
+1. Click "Code" in top toolbar
+2. Browse files in left tree
+3. Click to open in tabs
+4. Edit code with syntax highlighting
+5. Changes are reflected immediately
+
+### Preview Mode
+1. Click "Preview" in top toolbar
+2. Select device mode (Desktop, Laptop, Tablet, Mobile)
+3. See live preview of your app
+4. Console logs appear at bottom
+5. Click refresh to reload
+
+### Logs Mode
+1. Click "Logs" in top toolbar
+2. View build logs in real-time
+3. Filter by level (Info, Warn, Error, Success)
+4. Search with text query
+5. Export logs to file
 
 ## Architecture
 
