@@ -11,7 +11,6 @@ interface DiffViewerProps {
 }
 
 export default function DiffViewer({
-  fileId,
   oldContent,
   newContent,
   onAccept,
