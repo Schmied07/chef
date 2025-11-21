@@ -31,7 +31,7 @@ export function evaluateCondition(condition: string, context: RenderContext): bo
 /**
  * Renders all files from a template
  */
-export function renderTemplate Files(
+export function renderTemplateFiles(
   metadata: TemplateMetadata,
   context: RenderContext
 ): RenderedFile[] {
