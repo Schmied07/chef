@@ -35,28 +35,28 @@ export class DockerProcessor {
 
     try {
       // Phase 1: Prepare filesystem
-      await this.updateProgress(job.jobId, 'preparing', 10, 'Preparing filesystem...');
+      await this.updateProgress(job.jobId, 'preparing', 10, 'Preparing filesystem...', job.projectId);
       metrics.updatePhase(job.jobId, 'preparing');
       await this.prepareFilesystem(job);
 
       // Phase 2: Install dependencies
-      await this.updateProgress(job.jobId, 'installing', 30, 'Installing dependencies...');
+      await this.updateProgress(job.jobId, 'installing', 30, 'Installing dependencies...', job.projectId);
       await this.installDependencies(job);
 
       // Phase 3: Execute build
-      await this.updateProgress(job.jobId, 'building', 50, 'Running build...');
+      await this.updateProgress(job.jobId, 'building', 50, 'Running build...', job.projectId);
       const buildOutput = await this.executeBuild(job);
 
       // Phase 3.5: Run tests (if tests exist)
-      await this.updateProgress(job.jobId, 'building', 70, 'Running tests...');
+      await this.updateProgress(job.jobId, 'building', 70, 'Running tests...', job.projectId);
       const testResults = await this.executeTests(job);
 
       // Phase 4: Collect artifacts
-      await this.updateProgress(job.jobId, 'completed', 90, 'Collecting artifacts...');
+      await this.updateProgress(job.jobId, 'completed', 90, 'Collecting artifacts...', job.projectId);
       const artifacts = await this.collectArtifacts(job);
 
       // Phase 5: Complete
-      await this.updateProgress(job.jobId, 'completed', 100, 'Build completed successfully');
+      await this.updateProgress(job.jobId, 'completed', 100, 'Build completed successfully', job.projectId);
       metrics.updatePhase(job.jobId, 'completed');
 
       const endTime = new Date().toISOString();
