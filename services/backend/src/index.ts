@@ -67,6 +67,9 @@ app.use((req, res, next) => {
   next();
 });
 
+// Apply global rate limiting
+app.use('/v1/', globalRateLimiter);
+
 // CSP Reporting endpoint
 app.post('/csp-report', express.json({ type: 'application/csp-report' }), (req: Request, res: Response) => {
   logger.warn('CSP Violation:', req.body);
