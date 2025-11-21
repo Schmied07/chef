@@ -148,24 +148,87 @@ npm run lint
 ```
 /apps/web/
 ├── src/
-│   ├── components/       # React components
-│   │   ├── ui/          # Base UI components
-│   │   ├── Canvas/      # Drag & drop canvas
-│   │   ├── Preview/     # Preview iframe
-│   │   ├── Logs/        # Logs panel
-│   │   ├── CodeViewer/  # Code editor
-│   │   └── Library/     # Component library
-│   ├── services/        # API clients, WebSocket
-│   ├── stores/          # State management (Zustand)
-│   ├── lib/            # Utilities
-│   ├── styles/         # Global styles
-│   ├── App.tsx         # Main app component
-│   └── main.tsx        # Entry point
-├── public/             # Static assets
-├── vite.config.ts     # Vite configuration
-├── tsconfig.json      # TypeScript config
-└── package.json       # Dependencies
+│   ├── components/              # React components
+│   │   ├── Canvas/             # Drag & drop canvas
+│   │   │   ├── Canvas.tsx
+│   │   │   ├── CanvasNode.tsx
+│   │   │   └── DropZone.tsx
+│   │   ├── ComponentLibrary/   # Component palette
+│   │   │   ├── ComponentLibrary.tsx
+│   │   │   └── ComponentItem.tsx
+│   │   ├── PropsPanel/         # Props editor
+│   │   │   ├── PropsPanel.tsx
+│   │   │   └── PropEditor.tsx
+│   │   ├── CodeViewer/         # Code editor
+│   │   │   ├── CodeViewer.tsx
+│   │   │   ├── CodeTabs.tsx
+│   │   │   └── FileTree.tsx
+│   │   ├── Preview/            # Preview iframe
+│   │   │   ├── Preview.tsx
+│   │   │   └── PreviewToolbar.tsx
+│   │   ├── Logs/              # Logs panel
+│   │   │   └── LogsPanel.tsx
+│   │   └── Diff/              # Visual diff
+│   │       └── DiffViewer.tsx
+│   ├── stores/                # Zustand stores
+│   │   ├── projectStore.ts    # Project and files
+│   │   ├── canvasStore.ts     # Canvas nodes
+│   │   ├── logsStore.ts       # Logs
+│   │   └── editorStore.ts     # Editor tabs
+│   ├── services/              # API clients
+│   │   ├── apiClient.ts       # REST API
+│   │   └── websocket.ts       # WebSocket client
+│   ├── lib/                   # Utilities
+│   │   └── componentLibrary.ts # Component definitions
+│   ├── types/                 # TypeScript types
+│   │   └── index.ts
+│   ├── pages/                 # Route pages
+│   │   ├── HomePage.tsx
+│   │   └── EditorPage.tsx
+│   ├── styles/                # Global styles
+│   │   └── index.css
+│   ├── App.tsx                # Main app
+│   └── main.tsx               # Entry point
+├── public/                    # Static assets
+├── .env                       # Environment variables
+├── vite.config.ts            # Vite configuration
+├── tsconfig.json             # TypeScript config
+├── tailwind.config.js        # Tailwind config
+└── package.json              # Dependencies
 ```
+
+## Tech Stack
+
+### Core
+- **React 18.3** - UI framework
+- **TypeScript 5.7** - Type safety
+- **Vite 5.4** - Build tool & dev server
+- **React Router 6.26** - Client-side routing
+
+### State Management
+- **Zustand 4.5** - Lightweight state management (4 stores)
+
+### Drag & Drop
+- **react-dnd 16.0** - Drag and drop framework
+- **react-dnd-html5-backend** - HTML5 drag backend
+
+### Code Editor
+- **CodeMirror 6** - Modern code editor
+- **@codemirror/lang-javascript** - JavaScript/TypeScript support
+- **@codemirror/lang-css** - CSS support
+- **@codemirror/lang-html** - HTML support
+- **@codemirror/lang-json** - JSON support
+- **@codemirror/theme-one-dark** - Dark theme
+
+### UI & Layout
+- **Tailwind CSS 3.4** - Utility-first CSS
+- **Allotment 1.20** - Resizable split panels
+- **@radix-ui/react-icons** - Icon library
+- **classnames** - Conditional CSS classes
+- **sonner** - Toast notifications
+
+### Utilities
+- **diff 5.2** - Text diff algorithm for visual diff
 
 ## Backend Integration
 
