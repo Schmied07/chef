@@ -10,6 +10,7 @@ import type { BuildJob, BuildResult, LogEntry, JobProgress, TestResults } from '
 import { logger } from '../utils/logger';
 import { metrics } from '../utils/metrics';
 import { config } from '../config';
+import { emitProgress, emitLog } from '../services/websocket';
 import {
   getDockerClient,
   getDockerImage,
