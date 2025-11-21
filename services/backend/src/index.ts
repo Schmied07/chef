@@ -100,8 +100,24 @@ async function initialize() {
       logger.warn('⚠️  Docker is not available - builds will fail');
     }
 
-    // Start worker
-    logger.info('Starting worker...');
+    // Initialize WebSocket if enabled
+    const websocketEnabled = process.env.WEBSOCKET_ENABLED === 'true';
+    if (websocketEnabled) {
+      logger.info('Initializing WebSocket server...');
+      initializeWebSocket(server);
+    } else {
+      logger.info('WebSocket disabled');
+    }
+
+    // Start webhook retry worker if enabled
+    const webhookRetryEnabled = process.env.WEBHOOK_RETRY_ENABLED === 'true';
+    if (webhookRetryEnabled) {
+      logger.info('Starting webhook retry worker...');
+      startWebhookRetryWorker();
+    }
+
+    // Start build worker
+    logger.info('Starting build worker...');
     startWorker();
 
     logger.info('✅ All services initialized');
