@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Allotment Overrides */
+.split-view-view {
+  overflow: hidden;
+}
+
 :root {
   /* Background colors */
   --bolt-elements-bg-depth-1: #0a0a0a;
