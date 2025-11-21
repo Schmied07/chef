@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Background colors */
+  --bolt-elements-bg-depth-1: #0a0a0a;
+  --bolt-elements-bg-depth-2: #1a1a1a;
+  --bolt-elements-bg-depth-3: #2a2a2a;
+
+  /* Text colors */
+  --bolt-elements-textPrimary: #ffffff;
+  --bolt-elements-textSecondary: #a0a0a0;
+
+  /* Border colors */
+  --bolt-elements-borderColor: #333333;
+
+  /* Item colors */
+  --bolt-elements-item-contentDefault: #e0e0e0;
+  --bolt-elements-item-contentActive: #ffffff;
+  --bolt-elements-item-contentAccent: #60a5fa;
+
+  --bolt-elements-item-backgroundDefault: transparent;
+  --bolt-elements-item-backgroundActive: rgba(255, 255, 255, 0.1);
+  --bolt-elements-item-backgroundAccent: rgba(96, 165, 250, 0.2);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bolt-elements-bg-depth-1: #ffffff;
+    --bolt-elements-bg-depth-2: #f5f5f5;
+    --bolt-elements-bg-depth-3: #e5e5e5;
+
+    --bolt-elements-textPrimary: #000000;
+    --bolt-elements-textSecondary: #666666;
+
+    --bolt-elements-borderColor: #e0e0e0;
+
+    --bolt-elements-item-contentDefault: #333333;
+    --bolt-elements-item-contentActive: #000000;
+    --bolt-elements-item-contentAccent: #2563eb;
+
+    --bolt-elements-item-backgroundDefault: transparent;
+    --bolt-elements-item-backgroundActive: rgba(0, 0, 0, 0.05);
+    --bolt-elements-item-backgroundAccent: rgba(37, 99, 235, 0.1);
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bolt-elements-bg-depth-1);
+  color: var(--bolt-elements-textPrimary);
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+#root {
+  width: 100%;
+  height: 100vh;
+}
