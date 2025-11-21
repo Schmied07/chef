@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Test - Chef Backend</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #666;
+            margin-top: 0;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .status.connected {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status.disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        .logs {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 4px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-left: 3px solid #4CAF50;
+            padding-left: 10px;
+        }
+        .log-entry.error {
+            border-left-color: #f44336;
+            color: #ef9a9a;
+        }
+        .log-entry.warn {
+            border-left-color: #ff9800;
+            color: #ffcc80;
+        }
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 Chef Backend - WebSocket Test Client</h1>
+    
+    <div class="container">
+        <h2>Connection Status</h2>
+        <div id="status" class="status disconnected">Disconnected</div>
+        <div class="info-box">
+            <strong>Server:</strong> <span id="server-url">http://localhost:3001</span><br>
+            <strong>Client ID:</strong> <span id="client-id">-</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Subscribe to Job/Project</h2>
+        <div class="controls">
+            <input type="text" id="jobId" placeholder="Job ID" value="test-job-123">
+            <button onclick="subscribeJob()">Subscribe to Job</button>
+            <button onclick="unsubscribeJob()">Unsubscribe</button>
+        </div>
+        <div class="controls">
+            <input type="text" id="projectId" placeholder="Project ID" value="test-project-456">
+            <button onclick="subscribeProject()">Subscribe to Project</button>
+            <button onclick="unsubscribeProject()">Unsubscribe</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Build Progress</h2>
+        <div class="progress-bar">
+            <div id="progress-fill" class="progress-fill" style="width: 0%">0%</div>
+        </div>
+        <p><strong>Status:</strong> <span id="build-status">-</span></p>
+        <p><strong>Phase:</strong> <span id="build-phase">-</span></p>
+        <p><strong>Message:</strong> <span id="build-message">-</span></p>
+    </div>
+
+    <div class="container">
+        <h2>Real-time Logs</h2>
+        <button onclick="clearLogs()">Clear Logs</button>
+        <div id="logs" class="logs">
+            <div class="log-entry">Waiting for logs...</div>
+        </div>
+    </div>
+
+    <script>
+        let socket = null;
+        let currentJobId = null;
+        let currentProjectId = null;
+
+        // Initialize WebSocket connection
+        function initWebSocket() {
+            const serverUrl = 'http://localhost:3001';
+            
+            socket = io(serverUrl, {
+                path: '/ws',
+                transports: ['websocket', 'polling']
+            });
+
+            socket.on('connect', () => {
+                updateStatus('connected');
+                document.getElementById('client-id').textContent = socket.id;
+                addLog('info', `Connected to server: ${socket.id}`);
+            });
+
+            socket.on('disconnect', () => {
+                updateStatus('disconnected');
+                addLog('error', 'Disconnected from server');
+            });
+
+            socket.on('connect_error', (error) => {
+                addLog('error', `Connection error: ${error.message}`);
+            });
+
+            // Job events
+            socket.on('job:progress', (data) => {
+                updateProgress(data);
+                addLog('info', `[Job Progress] ${data.message} (${data.progress}%)`);
+            });
+
+            socket.on('job:log', (log) => {
+                addLog(log.level || 'info', `[Job Log] ${log.message}`);
+            });
+
+            socket.on('job:completed', (result) => {
+                addLog('info', `[Job Completed] ${JSON.stringify(result)}`);
+                updateProgress({
+                    progress: 100,
+                    status: 'completed',
+                    message: 'Build completed successfully!'
+                });
+            });
+
+            socket.on('job:error', (error) => {
+                addLog('error', `[Job Error] ${JSON.stringify(error)}`);
+            });
+
+            // Project events
+            socket.on('project:progress', (data) => {
+                updateProgress(data);
+                addLog('info', `[Project Progress] ${data.message} (${data.progress}%)`);
+            });
+
+            socket.on('project:completed', (result) => {
+                addLog('info', `[Project Completed] ${JSON.stringify(result)}`);
+            });
+
+            socket.on('project:error', (error) => {
+                addLog('error', `[Project Error] ${JSON.stringify(error)}`);
+            });
+        }
+
+        function updateStatus(status) {
+            const statusEl = document.getElementById('status');
+            if (status === 'connected') {
+                statusEl.textContent = 'Connected ✓';
+                statusEl.className = 'status connected';
+            } else {
+                statusEl.textContent = 'Disconnected ✗';
+                statusEl.className = 'status disconnected';
+            }
+        }
+
+        function updateProgress(data) {
+            document.getElementById('progress-fill').style.width = `${data.progress}%`;
+            document.getElementById('progress-fill').textContent = `${data.progress}%`;
+            document.getElementById('build-status').textContent = data.status || '-';
+            document.getElementById('build-phase').textContent = data.phase || '-';
+            document.getElementById('build-message').textContent = data.message || '-';
+        }
+
+        function subscribeJob() {
+            const jobId = document.getElementById('jobId').value;
+            if (jobId && socket) {
+                socket.emit('subscribe:job', jobId);
+                currentJobId = jobId;
+                addLog('info', `Subscribed to job: ${jobId}`);
+            }
+        }
+
+        function unsubscribeJob() {
+            if (currentJobId && socket) {
+                socket.emit('unsubscribe:job', currentJobId);
+                addLog('info', `Unsubscribed from job: ${currentJobId}`);
+                currentJobId = null;
+            }
+        }
+
+        function subscribeProject() {
+            const projectId = document.getElementById('projectId').value;
+            if (projectId && socket) {
+                socket.emit('subscribe:project', projectId);
+                currentProjectId = projectId;
+                addLog('info', `Subscribed to project: ${projectId}`);
+            }
+        }
+
+        function unsubscribeProject() {
+            if (currentProjectId && socket) {
+                socket.emit('unsubscribe:project', currentProjectId);
+                addLog('info', `Unsubscribed from project: ${currentProjectId}`);
+                currentProjectId = null;
+            }
+        }
+
+        function addLog(level, message) {
+            const logsEl = document.getElementById('logs');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${level}`;
+            const timestamp = new Date().toLocaleTimeString();
+            entry.textContent = `[${timestamp}] ${message}`;
+            logsEl.appendChild(entry);
+            logsEl.scrollTop = logsEl.scrollHeight;
+        }
+
+        function clearLogs() {
+            document.getElementById('logs').innerHTML = '<div class="log-entry">Logs cleared</div>';
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', () => {
+            initWebSocket();
+        });
+    </script>
+</body>
+</html>
