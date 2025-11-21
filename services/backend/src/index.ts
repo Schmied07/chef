@@ -7,6 +7,7 @@
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
+import helmet from 'helmet';
 import type { Request, Response } from 'express';
 import { projectsRouter } from './routes/projects';
 import { hooksRouter } from './routes/hooks';
@@ -26,13 +27,38 @@ const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 3001;
 
-// Middleware
+// Security Middleware - Helmet with CSP
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"], // Needed for preview iframe
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", 'data:', 'https:'],
+        connectSrc: ["'self'", 'ws:', 'wss:'],
+        fontSrc: ["'self'", 'data:'],
+        objectSrc: ["'none'"],
+        mediaSrc: ["'self'"],
+        frameSrc: ["'self'"],
+        frameAncestors: ["'self'"],
+      },
+    },
+    crossOriginEmbedderPolicy: false, // Allow iframe embedding
+    crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  })
+);
+
+// CORS Middleware
 app.use(cors({
   origin: process.env.WEBSOCKET_CORS_ORIGIN || '*',
   credentials: true,
 }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+
+// Body parsing middleware
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Logging middleware
 app.use((req, res, next) => {
