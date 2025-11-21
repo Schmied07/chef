@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
 import { diffLines, Change } from 'diff';
-import { useProjectStore } from '../../stores/projectStore';
 import classNames from 'classnames';
 import { CheckIcon, Cross2Icon } from '@radix-ui/react-icons';
 
 interface DiffViewerProps {
-  fileId: string;
   oldContent: string;
   newContent: string;
   onAccept?: () => void;
