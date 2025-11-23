@@ -4,7 +4,7 @@
 
 import { z } from 'zod';
 import { buildStrategySchema } from './project';
-import { safeStringSchema } from './common';
+import { createSafeStringSchema } from './common';
 
 /**
  * AI generation config schema
@@ -22,9 +22,14 @@ export const aiConfigSchema = z.object({
  * Generate project schema
  */
 export const generateProjectSchema = z.object({
-  prompt: safeStringSchema
+  prompt: z
+    .string()
     .min(10, 'Prompt too short (min 10 characters)')
-    .max(5000, 'Prompt too long (max 5000 characters)'),
+    .max(5000, 'Prompt too long (max 5000 characters)')
+    .refine(
+      (str) => !/<script|<iframe|javascript:/i.test(str),
+      'Potentially unsafe content detected'
+    ),
   config: aiConfigSchema.optional(),
   strategy: buildStrategySchema.optional(),
 });
