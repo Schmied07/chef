@@ -174,6 +174,7 @@ app.get('/metrics/prometheus', async (_req: Request, res: Response) => {
   const newMetrics = await getMetrics();
   
   res.send(`${legacyMetrics}\n${newMetrics}`);
+});
 
 // API routes
 app.use('/v1/projects', projectsRouter);
