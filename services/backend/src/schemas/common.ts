@@ -60,12 +60,13 @@ export const urlSchema = z
 /**
  * Safe string validation
  * - No HTML/script tags
- * - Max 10000 characters
+ * - Max 10000 characters (can be overridden with .max())
  */
-export const safeStringSchema = z
+const baseSafeStringSchema = z
   .string()
-  .max(10000, 'String too long')
   .refine((str) => !/<script|<iframe|javascript:/i.test(str), 'Potentially unsafe content detected');
+
+export const safeStringSchema = baseSafeStringSchema.max(10000, 'String too long');
 
 /**
  * Pagination schema
