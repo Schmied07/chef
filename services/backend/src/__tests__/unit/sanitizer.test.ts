@@ -61,6 +61,7 @@ describe('Sanitizer Middleware', () => {
       body: {
         __proto__: { polluted: true },
         constructor: { polluted: true },
+        safeProperty: 'safe value',
       },
     });
     const res = mockResponse();
@@ -68,8 +69,12 @@ describe('Sanitizer Middleware', () => {
 
     middleware(req, res, mockNext as NextFunction);
 
-    expect(req.body.__proto__).toBeUndefined();
-    expect(req.body.constructor).toBeUndefined();
+    // Dangerous keys should not be present in sanitized object
+    expect(Object.keys(req.body)).not.toContain('__proto__');
+    expect(Object.keys(req.body)).not.toContain('constructor');
+    expect(Object.keys(req.body)).not.toContain('prototype');
+    // Safe properties should be preserved
+    expect(req.body.safeProperty).toBe('safe value');
     expect(mockNext).toHaveBeenCalled();
   });
 
