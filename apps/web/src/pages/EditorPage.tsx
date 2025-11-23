@@ -46,7 +46,12 @@ export default function EditorPage() {
         {/* Header */}
         <header className="flex items-center justify-between border-b border-bolt-elements-borderColor bg-bolt-elements-background-depth-2 px-6 py-3">
           <div className="flex items-center gap-4">
-            <h1 className="text-xl font-bold text-bolt-elements-textPrimary">Chef Editor</h1>
+            <img 
+              src="https://i.ibb.co/mG0GPDX/tetrisnews-1.png" 
+              alt="TETRISNEWS AICODE" 
+              className="h-8 w-auto"
+            />
+            <h1 className="text-xl font-bold text-bolt-elements-textPrimary">TETRISNEWS AICODE Editor</h1>
             {currentProject && (
               <span className="text-sm text-bolt-elements-textSecondary">
                 {currentProject.name}
