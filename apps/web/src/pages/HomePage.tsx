@@ -7,8 +7,17 @@ export default function HomePage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-bolt-elements-background-depth-1 to-bolt-elements-background-depth-2 p-8">
       <div className="max-w-4xl text-center">
+        {/* Logo */}
+        <div className="mb-6 flex justify-center">
+          <img 
+            src="https://i.ibb.co/mG0GPDX/tetrisnews-1.png" 
+            alt="TETRISNEWS AICODE Logo" 
+            className="h-24 w-auto"
+          />
+        </div>
+        
         <h1 className="mb-6 text-6xl font-bold text-bolt-elements-textPrimary">
-          Chef by Convex
+          TETRISNEWS AICODE
         </h1>
         <p className="mb-12 text-xl text-bolt-elements-textSecondary">
           Build full-stack applications with AI-powered development
@@ -41,7 +50,7 @@ export default function HomePage() {
       </div>
 
       <footer className="mt-16 text-sm text-bolt-elements-textSecondary">
-        Sprint 3.0 - Migration Complete ✅
+        Powered by TETRISNEWS AICODE ✅
       </footer>
     </div>
   );
