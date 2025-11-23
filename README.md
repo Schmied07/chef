@@ -30,11 +30,11 @@ Note: This will use the hosted Convex control plane to provision Convex projects
 
 **1. Clone the project**
 
-Clone the GitHub respository and `cd` into the directory by running the following commands:
+Clone the GitHub repository and `cd` into the directory by running the following commands:
 
 ```bash
-git clone https://github.com/get-convex/chef.git
-cd chef
+git clone https://github.com/tetrisnews/aicode.git
+cd aicode
 ```
 
 **2. Set up local environment**
