@@ -39,9 +39,9 @@ export const buildStrategySchema = z.object({
  * Project metadata schema
  */
 export const projectMetadataSchema = z.object({
-  name: safeStringSchema.max(255).optional(),
-  description: safeStringSchema.max(1000).optional(),
-  author: safeStringSchema.max(255).optional(),
+  name: createSafeStringSchema(255).optional(),
+  description: createSafeStringSchema(1000).optional(),
+  author: createSafeStringSchema(255).optional(),
   tags: z.array(z.string().max(50)).max(10).optional(),
   timestamp: z.string().datetime().optional(),
 }).passthrough(); // Allow additional fields
