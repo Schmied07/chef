@@ -1,0 +1,97 @@
+{
+  "version": "1.0.0",
+  "name": "React + Supabase",
+  "description": "Full-stack React application with Supabase backend, PostgreSQL database, and authentication",
+  "author": "Chef by Convex",
+  "license": "MIT",
+  "variables": {
+    "projectName": {
+      "name": "projectName",
+      "description": "Project name",
+      "type": "string",
+      "default": "my-supabase-app",
+      "required": true
+    },
+    "auth": {
+      "name": "auth",
+      "description": "Enable authentication",
+      "type": "boolean",
+      "default": true,
+      "required": false
+    },
+    "database": {
+      "name": "database",
+      "description": "Database type",
+      "type": "select",
+      "default": "postgresql",
+      "options": ["postgresql"],
+      "required": true
+    },
+    "realtime": {
+      "name": "realtime",
+      "description": "Enable real-time subscriptions",
+      "type": "boolean",
+      "default": true,
+      "required": false
+    },
+    "port": {
+      "name": "port",
+      "description": "Development server port",
+      "type": "number",
+      "default": 5173,
+      "required": false
+    }
+  },
+  "conditionalFiles": [
+    {
+      "path": "src/lib/auth.ts",
+      "condition": "{{auth}} === true",
+      "template": "import { supabase } from './supabase';\n\nexport async function signIn(email: string, password: string) {\n  const { data, error } = await supabase.auth.signInWithPassword({ email, password });\n  if (error) throw error;\n  return data;\n}\n\nexport async function signOut() {\n  const { error } = await supabase.auth.signOut();\n  if (error) throw error;\n}"
+    }
+  ],
+  "dependencies": {
+    "required": {
+      "react": "^18.3.1",
+      "react-dom": "^18.3.1",
+      "@supabase/supabase-js": "^2.39.0",
+      "tailwindcss": "^3.4.1"
+    },
+    "optional": {},
+    "devDependencies": {
+      "@types/react": "^18.3.20",
+      "@types/react-dom": "^18.3.6",
+      "@vitejs/plugin-react": "^4.3.4",
+      "typescript": "~5.7.2",
+      "vite": "^5.4.17",
+      "autoprefixer": "^10.4.21",
+      "postcss": "^8.5.3"
+    }
+  },
+  "scripts": {
+    "dev": "Start Vite development server",
+    "build": "Build for production",
+    "preview": "Preview production build",
+    "lint": "Run ESLint",
+    "typecheck": "Run TypeScript type checking"
+  },
+  "features": [
+    {
+      "id": "auth",
+      "name": "Authentication",
+      "description": "User authentication with Supabase Auth",
+      "enabled": true
+    },
+    {
+      "id": "realtime",
+      "name": "Real-time Subscriptions",
+      "description": "Real-time data updates with Supabase Realtime",
+      "enabled": true
+    },
+    {
+      "id": "storage",
+      "name": "File Storage",
+      "description": "Upload and manage files with Supabase Storage",
+      "enabled": false
+    }
+  ]
+}
