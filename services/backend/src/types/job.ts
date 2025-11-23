@@ -11,6 +11,7 @@ export interface BuildJob {
   strategy: BuildStrategy;
   metadata: JobMetadata;
   priority?: JobPriority;
+  [key: string]: unknown; // Allow additional properties for flexibility
 }
 
 export type JobPriority = 'low' | 'normal' | 'high' | 'critical';
