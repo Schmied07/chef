@@ -58,15 +58,25 @@ export const urlSchema = z
   );
 
 /**
- * Safe string validation
+ * Safe string validation base (without max length)
  * - No HTML/script tags
- * - Max 10000 characters (can be overridden with .max())
  */
-const baseSafeStringSchema = z
-  .string()
-  .refine((str) => !/<script|<iframe|javascript:/i.test(str), 'Potentially unsafe content detected');
+const baseSafeStringValidation = (str: string) => !/<script|<iframe|javascript:/i.test(str);
 
-export const safeStringSchema = baseSafeStringSchema.max(10000, 'String too long');
+/**
+ * Safe string schema with configurable max length
+ * Use this as a base to create safe strings with custom max lengths
+ */
+export const createSafeStringSchema = (maxLength: number = 10000) =>
+  z
+    .string()
+    .max(maxLength, `String too long (max ${maxLength} characters)`)
+    .refine(baseSafeStringValidation, 'Potentially unsafe content detected');
+
+/**
+ * Default safe string schema with 10000 character limit
+ */
+export const safeStringSchema = createSafeStringSchema(10000);
 
 /**
  * Pagination schema
