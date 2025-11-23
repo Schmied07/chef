@@ -321,15 +321,15 @@ function ApiKeyItem({
   };
 
   return (
-    <div>
-      <div className="mb-1.5">
-        <span className="font-medium text-content-primary">{label}</span>
+    <div className="rounded-xl border border-blue-100 bg-white p-5 transition-all hover:border-blue-300 hover:shadow-md dark:border-blue-900/50 dark:bg-blue-950/20 dark:hover:border-blue-700">
+      <div className="mb-2">
+        <span className="font-semibold text-content-primary">{label}</span>
       </div>
-      <div className="mb-2 text-xs text-content-secondary">{description}</div>
+      <div className="mb-3 text-xs text-content-secondary">{description}</div>
 
       {hasKey ? (
         <div className="flex items-center gap-2 py-1.5">
-          <span className="max-w-80 truncate font-mono text-sm" aria-label="API key value">
+          <span className="max-w-80 truncate rounded-md bg-blue-50 px-3 py-2 font-mono text-sm dark:bg-blue-950/50" aria-label="API key value">
             {showKey ? value : '•'.repeat(value.length)}
           </span>
           <Button
