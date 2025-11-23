@@ -42,6 +42,15 @@ const PORT = env.PORT;
 // Initialize Sentry BEFORE any middleware
 initSentry();
 
+// Sentry request handler - must be first
+setupSentryMiddleware(app);
+
+// Request ID middleware - for correlation
+app.use(requestIdMiddleware);
+
+// Prometheus metrics middleware
+app.use(metricsMiddleware);
+
 // CSP Nonce generation middleware
 app.use((req: Request, res: Response, next: NextFunction) => {
   res.locals.cspNonce = crypto.randomBytes(16).toString('base64');
