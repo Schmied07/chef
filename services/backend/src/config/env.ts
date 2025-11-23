@@ -113,3 +113,11 @@ export function getSecret(key: keyof EnvConfig): string {
   }
   return String(value);
 }
+
+/**
+ * Reset environment config (for testing only)
+ * @internal
+ */
+export function resetEnv(): void {
+  config = null;
+}
