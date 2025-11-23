@@ -18,6 +18,7 @@ import { queueRouter } from './routes/queue';
 import { errorHandler } from './middleware/error-handler';
 import { sanitizeInputs } from './middleware/sanitizer';
 import { logger } from './utils/logger';
+import { enhancedLogger } from './utils/enhancedLogger';
 import { metrics } from './utils/metrics';
 import { startWorker, stopWorker } from './workers/queue';
 import { getRedisClient, checkRedisHealth } from './services/redis';
@@ -26,6 +27,10 @@ import { initializeWebSocket, closeWebSocket, getConnectedClientsCount } from '.
 import { startWebhookRetryWorker, stopWebhookRetryWorker, getWebhookRetryStats } from './services/webhook-retry';
 import { globalRateLimiter } from './middleware/rate-limit';
 import { loadEnv, getEnv } from './config/env';
+import { initSentry, setupSentryMiddleware, setupSentryErrorHandler, flushSentry } from './monitoring/sentry';
+import { metricsMiddleware, getMetrics, getMetricsJSON } from './monitoring/prometheus';
+import { requestIdMiddleware } from './middleware/requestId';
+import { initAnalytics, flushAnalytics, getAnalyticsStats } from './monitoring/analytics';
 
 const app = express();
 const server = http.createServer(app);
