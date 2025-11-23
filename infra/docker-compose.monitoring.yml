@@ -1,0 +1,99 @@
+# Docker Compose for Monitoring Stack
+# Prometheus, Grafana, and PostHog
+
+version: '3.8'
+
+services:
+  # Prometheus - Metrics collection
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: chef-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    networks:
+      - monitoring
+    restart: unless-stopped
+
+  # Grafana - Metrics visualization
+  grafana:
+    image: grafana/grafana:latest
+    container_name: chef-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=http://localhost:3000
+      - GF_INSTALL_PLUGINS=redis-datasource
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources
+    networks:
+      - monitoring
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+
+  # PostHog - Analytics (Self-hosted)
+  posthog:
+    image: posthog/posthog:latest
+    container_name: chef-posthog
+    ports:
+      - "8000:8000"
+    environment:
+      - POSTHOG_DB_HOST=posthog-db
+      - POSTHOG_DB_NAME=posthog
+      - POSTHOG_DB_USER=posthog
+      - POSTHOG_DB_PASSWORD=posthog
+      - POSTHOG_REDIS_HOST=posthog-redis
+      - SECRET_KEY=change-this-secret-key-in-production
+      - SITE_URL=http://localhost:8000
+    networks:
+      - monitoring
+    restart: unless-stopped
+    depends_on:
+      - posthog-db
+      - posthog-redis
+
+  # PostHog Database
+  posthog-db:
+    image: postgres:14-alpine
+    container_name: chef-posthog-db
+    environment:
+      - POSTGRES_USER=posthog
+      - POSTGRES_PASSWORD=posthog
+      - POSTGRES_DB=posthog
+    volumes:
+      - posthog-db-data:/var/lib/postgresql/data
+    networks:
+      - monitoring
+    restart: unless-stopped
+
+  # PostHog Redis
+  posthog-redis:
+    image: redis:7-alpine
+    container_name: chef-posthog-redis
+    volumes:
+      - posthog-redis-data:/data
+    networks:
+      - monitoring
+    restart: unless-stopped
+
+networks:
+  monitoring:
+    driver: bridge
+
+volumes:
+  prometheus-data:
+  grafana-data:
+  posthog-db-data:
+  posthog-redis-data:
