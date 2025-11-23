@@ -62,16 +62,23 @@ export function ApiKeyCard() {
   };
 
   return (
-    <div className="rounded-lg border bg-bolt-elements-background-depth-1 shadow-sm">
-      <div className="p-6">
-        <h2 className="mb-2 text-xl font-semibold text-content-primary">API Keys</h2>
+    <div className="group overflow-hidden rounded-2xl border border-blue-200 bg-gradient-to-br from-white to-blue-50 shadow-lg shadow-blue-100/50 transition-all duration-300 hover:shadow-xl hover:shadow-blue-200/50 dark:border-blue-800 dark:from-bolt-elements-background-depth-1 dark:to-blue-950/20 dark:shadow-blue-900/30 dark:hover:shadow-blue-800/40">
+      <div className="p-8">
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-800 dark:from-blue-400 dark:to-blue-600">
+            Clés API
+          </h2>
+          <p className="mt-1 text-sm text-content-secondary">Gérez vos clés API pour les différents fournisseurs</p>
+        </div>
 
-        <p className="mb-1 max-w-prose text-sm text-content-secondary">
-          You can use your own API keys to cook with Chef.
-        </p>
-        <p className="mb-4 max-w-prose text-sm text-content-secondary">
-          By default, Chef will use tokens built into your Convex plan.
-        </p>
+        <div className="mb-6 rounded-xl bg-blue-50 p-4 dark:bg-blue-950/30">
+          <p className="mb-2 text-sm text-content-secondary">
+            💡 Vous pouvez utiliser vos propres clés API pour cuisiner avec Chef.
+          </p>
+          <p className="text-sm text-content-secondary">
+            Par défaut, Chef utilisera les tokens inclus dans votre plan Convex.
+          </p>
+        </div>
         <div className="space-y-4">
           <AlwaysUseKeyCheckbox
             isLoading={apiKey === undefined}
