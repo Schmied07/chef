@@ -1,0 +1,128 @@
+{
+  "version": "1.0.0",
+  "name": "React + Convex",
+  "description": "Full-stack React application with Convex backend, real-time database, and authentication",
+  "author": "Chef by Convex",
+  "license": "MIT",
+  "variables": {
+    "projectName": {
+      "name": "projectName",
+      "description": "Project name",
+      "type": "string",
+      "default": "my-convex-app",
+      "required": true,
+      "validation": {
+        "pattern": "^[a-z][a-z0-9-]*$",
+        "message": "Project name must start with a letter and contain only lowercase letters, numbers, and hyphens"
+      }
+    },
+    "auth": {
+      "name": "auth",
+      "description": "Enable authentication",
+      "type": "boolean",
+      "default": true,
+      "required": false
+    },
+    "database": {
+      "name": "database",
+      "description": "Database type",
+      "type": "select",
+      "default": "convex",
+      "options": ["convex"],
+      "required": true
+    },
+    "styling": {
+      "name": "styling",
+      "description": "Styling solution",
+      "type": "select",
+      "default": "tailwind",
+      "options": ["tailwind", "css-modules", "styled-components"],
+      "required": true
+    },
+    "port": {
+      "name": "port",
+      "description": "Development server port",
+      "type": "number",
+      "default": 5173,
+      "required": false,
+      "validation": {
+        "min": 3000,
+        "max": 9999
+      }
+    }
+  },
+  "conditionalFiles": [
+    {
+      "path": "convex/auth.config.ts",
+      "condition": "{{auth}} === true",
+      "template": "import GitHub from '@auth/core/providers/github';\nimport Google from '@auth/core/providers/google';\nimport { convexAuth } from '@convex-dev/auth/server';\n\nexport const { auth, signIn, signOut, store } = convexAuth({\n  providers: [GitHub, Google],\n});"
+    },
+    {
+      "path": "src/lib/auth.tsx",
+      "condition": "{{auth}} === true",
+      "template": "import { useAuthActions } from '@convex-dev/auth/react';\nimport { useConvexAuth } from 'convex/react';\n\nexport function useAuth() {\n  const { isAuthenticated, isLoading } = useConvexAuth();\n  const { signIn, signOut } = useAuthActions();\n  return { isAuthenticated, isLoading, signIn, signOut };\n}"
+    }
+  ],
+  "dependencies": {
+    "required": {
+      "react": "^19.0.0",
+      "react-dom": "^19.0.0",
+      "convex": "^1.24.2",
+      "clsx": "^2.1.1",
+      "sonner": "^2.0.3"
+    },
+    "optional": {
+      "@convex-dev/auth": {
+        "version": "^0.0.80",
+        "condition": "{{auth}} === true"
+      },
+      "tailwindcss": {
+        "version": "~3",
+        "condition": "{{styling}} === 'tailwind'"
+      }
+    },
+    "devDependencies": {
+      "@types/react": "^19.0.10",
+      "@types/react-dom": "^19.0.4",
+      "@vitejs/plugin-react": "^4.3.4",
+      "typescript": "~5.7.2",
+      "vite": "^6.2.0"
+    }
+  },
+  "scripts": {
+    "dev": "Run development servers (frontend + backend)",
+    "dev:frontend": "Start Vite dev server",
+    "dev:backend": "Start Convex backend",
+    "build": "Build for production",
+    "lint": "Run ESLint and TypeScript checks",
+    "typecheck": "Run TypeScript type checking"
+  },
+  "features": [
+    {
+      "id": "auth",
+      "name": "Authentication",
+      "description": "User authentication with OAuth providers",
+      "enabled": true,
+      "files": ["convex/auth.config.ts", "src/lib/auth.tsx"],
+      "dependencies": ["@convex-dev/auth"]
+    },
+    {
+      "id": "realtime",
+      "name": "Real-time Database",
+      "description": "Real-time data synchronization with Convex",
+      "enabled": true
+    },
+    {
+      "id": "file-storage",
+      "name": "File Storage",
+      "description": "Upload and manage files with Convex Storage",
+      "enabled": false
+    },
+    {
+      "id": "crons",
+      "name": "Scheduled Jobs",
+      "description": "Run background jobs on a schedule",
+      "enabled": false
+    }
+  ]
+}
