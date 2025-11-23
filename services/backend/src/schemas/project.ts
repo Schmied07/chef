@@ -3,7 +3,7 @@
  */
 
 import { z } from 'zod';
-import { uuidSchema, filePathSchema, fileContentSchema, safeStringSchema } from './common';
+import { uuidSchema, filePathSchema, fileContentSchema, createSafeStringSchema } from './common';
 
 /**
  * File object schema
