@@ -182,6 +182,9 @@ app.use('/v1/hooks', hooksRouter);
 app.use('/v1/generate', generateRouter);
 app.use('/v1/queue', queueRouter);
 
+// Sentry error handler - must be before other error handlers
+setupSentryErrorHandler(app);
+
 // Error handler
 app.use(errorHandler);
 
