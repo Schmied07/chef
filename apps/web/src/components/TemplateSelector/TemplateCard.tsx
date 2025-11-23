@@ -51,7 +51,7 @@ export function TemplateCard({ template, onClick, isSelected }: TemplateCardProp
 
       {/* Tech Stack */}
       <div className="flex flex-wrap gap-2 mb-4">
-        {template.techStack.slice(0, 4).map((tech) => (
+        {template.techStack.slice(0, 4).map((tech: string) => (
           <span
             key={tech}
             className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-md font-medium"
