@@ -1,18 +1,15 @@
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://chef.convex.dev/github-header-dark.svg">
-    <img alt="Chef by Convex'" src="https://chef.convex.dev/github-header-light.svg" width="600">
-  </picture>
+  <img alt="TETRISNEWS AICODE" src="https://i.ibb.co/mG0GPDX/tetrisnews-1.png" width="200">
 </p>
 
-[Chef](https://chef.convex.dev) is the only AI app builder that knows backend. It builds full-stack web apps with a built-in database, zero config auth, file uploads,
-real-time UIs, and background workflows. If you want to check out the secret sauce that powers Chef, you can view or download the system prompt [here](https://github.com/get-convex/chef/releases/latest).
+<h1 align="center">TETRISNEWS AICODE</h1>
 
-Chef's capabilities are enabled by being built on top of [Convex](https://convex.dev), the open-source reactive database designed to make life easy for web app developers. The "magic" in Chef is just the fact that it's using Convex's APIs, which are an ideal fit for codegen.
+**TETRISNEWS AICODE** is an advanced AI app builder that builds full-stack web apps with a built-in database, zero config auth, file uploads,
+real-time UIs, and background workflows. Powered by cutting-edge AI technology and built on top of [Convex](https://convex.dev).
 
-Development of the Chef is led by the Convex team. We
-[welcome bug fixes](./CONTRIBUTING.md) and
-[love receiving feedback](https://discord.gg/convex).
+TETRISNEWS AICODE's capabilities are enabled by being built on top of Convex, the open-source reactive database designed to make life easy for web app developers.
+
+We [welcome bug fixes](./CONTRIBUTING.md) and [love receiving feedback](https://discord.gg/convex).
 
 This project is a fork of the `stable` branch of [bolt.diy](https://github.com/stackblitz-labs/bolt.diy).
 
