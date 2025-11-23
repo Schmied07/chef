@@ -235,18 +235,22 @@ async function initialize() {
 
 // Graceful shutdown
 process.on('SIGTERM', async () => {
-  logger.info('SIGTERM received, shutting down gracefully...');
+  enhancedLogger.info('SIGTERM received, shutting down gracefully...');
   await stopWorker();
   await stopWebhookRetryWorker();
   await closeWebSocket();
+  await flushAnalytics();
+  await flushSentry();
   process.exit(0);
 });
 
 process.on('SIGINT', async () => {
-  logger.info('SIGINT received, shutting down gracefully...');
+  enhancedLogger.info('SIGINT received, shutting down gracefully...');
   await stopWorker();
   await stopWebhookRetryWorker();
   await closeWebSocket();
+  await flushAnalytics();
+  await flushSentry();
   process.exit(0);
 });
 
