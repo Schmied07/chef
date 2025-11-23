@@ -111,9 +111,10 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Input sanitization middleware (before validation)
 app.use(sanitizeInputs());
 
-// Logging middleware
+// Logging middleware with request context
 app.use((req, res, next) => {
-  logger.info(`${req.method} ${req.path}`);
+  const reqLogger = enhancedLogger.forRequest(req);
+  reqLogger.info(`${req.method} ${req.path}`);
   next();
 });
 
