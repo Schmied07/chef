@@ -1,0 +1,125 @@
+{
+  "version": "1.0.0",
+  "name": "React + Node.js",
+  "description": "Full-stack React application with Node.js/Express backend and MongoDB database",
+  "author": "Chef by Convex",
+  "license": "MIT",
+  "variables": {
+    "projectName": {
+      "name": "projectName",
+      "description": "Project name",
+      "type": "string",
+      "default": "my-fullstack-app",
+      "required": true
+    },
+    "auth": {
+      "name": "auth",
+      "description": "Enable JWT authentication",
+      "type": "boolean",
+      "default": true,
+      "required": false
+    },
+    "database": {
+      "name": "database",
+      "description": "Database type",
+      "type": "select",
+      "default": "mongodb",
+      "options": ["mongodb", "postgresql"],
+      "required": true
+    },
+    "frontendPort": {
+      "name": "frontendPort",
+      "description": "Frontend development server port",
+      "type": "number",
+      "default": 5173,
+      "required": false
+    },
+    "backendPort": {
+      "name": "backendPort",
+      "description": "Backend API server port",
+      "type": "number",
+      "default": 3001,
+      "required": false
+    }
+  },
+  "conditionalFiles": [
+    {
+      "path": "server/middleware/auth.ts",
+      "condition": "{{auth}} === true",
+      "template": "import jwt from 'jsonwebtoken';\nimport { Request, Response, NextFunction } from 'express';\n\nexport function authenticateToken(req: Request, res: Response, next: NextFunction) {\n  const token = req.headers['authorization']?.split(' ')[1];\n  if (!token) return res.sendStatus(401);\n  \n  jwt.verify(token, process.env.JWT_SECRET!, (err, user) => {\n    if (err) return res.sendStatus(403);\n    (req as any).user = user;\n    next();\n  });\n}"
+    }
+  ],
+  "dependencies": {
+    "required": {
+      "express": "^4.18.2",
+      "cors": "^2.8.5",
+      "dotenv": "^16.4.5",
+      "react": "^18.3.1",
+      "react-dom": "^18.3.1"
+    },
+    "optional": {
+      "jsonwebtoken": {
+        "version": "^9.0.2",
+        "condition": "{{auth}} === true"
+      },
+      "bcrypt": {
+        "version": "^5.1.1",
+        "condition": "{{auth}} === true"
+      },
+      "mongoose": {
+        "version": "^8.0.0",
+        "condition": "{{database}} === 'mongodb'"
+      },
+      "pg": {
+        "version": "^8.11.3",
+        "condition": "{{database}} === 'postgresql'"
+      }
+    },
+    "devDependencies": {
+      "@types/react": "^18.3.20",
+      "@types/react-dom": "^18.3.6",
+      "@types/express": "^4.17.21",
+      "@types/cors": "^2.8.17",
+      "@types/node": "^22.14.0",
+      "@vitejs/plugin-react": "^4.3.4",
+      "typescript": "~5.7.2",
+      "vite": "^5.4.17",
+      "tsx": "^4.7.0",
+      "nodemon": "^3.0.2",
+      "concurrently": "^8.2.2",
+      "tailwindcss": "^3.4.17",
+      "autoprefixer": "^10.4.21",
+      "postcss": "^8.5.3"
+    }
+  },
+  "scripts": {
+    "dev": "Run both frontend and backend in development mode",
+    "dev:frontend": "Start Vite dev server",
+    "dev:backend": "Start Express server with nodemon",
+    "build": "Build frontend for production",
+    "start": "Start production server",
+    "lint": "Run ESLint",
+    "typecheck": "Run TypeScript type checking"
+  },
+  "features": [
+    {
+      "id": "auth",
+      "name": "JWT Authentication",
+      "description": "User authentication with JSON Web Tokens",
+      "enabled": true,
+      "dependencies": ["jsonwebtoken", "bcrypt"]
+    },
+    {
+      "id": "api",
+      "name": "REST API",
+      "description": "RESTful API with Express",
+      "enabled": true
+    },
+    {
+      "id": "database",
+      "name": "Database",
+      "description": "MongoDB or PostgreSQL database",
+      "enabled": true
+    }
+  ]
+}
