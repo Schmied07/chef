@@ -15,17 +15,14 @@ This project is a fork of the `stable` branch of [bolt.diy](https://github.com/s
 
 ## Getting Started
 
-Visit our [documentation](https://docs.convex.dev/chef) to learn more about Chef and check out our prompting [guide](https://stack.convex.dev/chef-cookbook-tips-working-with-ai-app-builders).
-
-The easiest way to build with Chef is through our hosted [webapp](https://chef.convex.dev), which includes a generous free tier. If you want to
-run Chef locally, you can follow the guide below.
+Visit our [documentation](https://docs.convex.dev/chef) to learn more about TETRISNEWS AICODE and check out our prompting [guide](https://stack.convex.dev/chef-cookbook-tips-working-with-ai-app-builders).
 
 > [!IMPORTANT]
-> Chef is provided as-is, using an authentication configuration specific to Convex's internal control plane that manages user accounts.
+> TETRISNEWS AICODE is provided as-is, using an authentication configuration specific to Convex's internal control plane that manages user accounts.
 
-If you are planning on developing a fork of Chef for production use or re-distribution, your fork will need to replace the existing authentication system with your own. We recommend using the [OAuth Authorization Code Grant](https://docs.convex.dev/platform-apis/oauth-applications#implementing-oauth) flow to authorize access to Convex teams or projects. [Read more about available Platform APIs](https://docs.convex.dev/platform-apis).
+If you are planning on developing a fork of TETRISNEWS AICODE for production use or re-distribution, your fork will need to replace the existing authentication system with your own. We recommend using the [OAuth Authorization Code Grant](https://docs.convex.dev/platform-apis/oauth-applications#implementing-oauth) flow to authorize access to Convex teams or projects. [Read more about available Platform APIs](https://docs.convex.dev/platform-apis).
 
-Chef is easy to use for local development without changes. Read on for instructions for using Chef locally.
+TETRISNEWS AICODE is easy to use for local development without changes. Read on for instructions for using TETRISNEWS AICODE locally.
 
 ### Running Locally
 
