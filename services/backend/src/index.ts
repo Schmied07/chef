@@ -39,6 +39,9 @@ const server = http.createServer(app);
 const env = loadEnv();
 const PORT = env.PORT;
 
+// Initialize Sentry BEFORE any middleware
+initSentry();
+
 // CSP Nonce generation middleware
 app.use((req: Request, res: Response, next: NextFunction) => {
   res.locals.cspNonce = crypto.randomBytes(16).toString('base64');
