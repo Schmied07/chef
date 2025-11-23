@@ -68,7 +68,7 @@ export function TemplateCard({ template, onClick, isSelected }: TemplateCardProp
 
       {/* Features */}
       <div className="space-y-1">
-        {template.features.slice(0, 3).map((feature) => (
+        {template.features.slice(0, 3).map((feature: string) => (
           <div key={feature} className="flex items-center gap-2 text-sm text-gray-600">
             <div className="w-1.5 h-1.5 bg-green-500 rounded-full" />
             {feature}
