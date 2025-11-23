@@ -33,9 +33,7 @@ export function initSentry(): void {
       // Integrations
       integrations: [
         // HTTP integration for tracing requests
-        Sentry.httpIntegration({
-          tracing: true,
-        }),
+        Sentry.httpIntegration(),
         // Profiling
         nodeProfilingIntegration(),
       ],
