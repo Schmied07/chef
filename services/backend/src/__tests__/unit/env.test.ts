@@ -3,18 +3,20 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { loadEnv, getEnv, hasSecret, getSecret } from '../../config/env';
+import { loadEnv, getEnv, hasSecret, getSecret, resetEnv } from '../../config/env';
 
 describe('Environment Configuration', () => {
   const originalEnv = process.env;
 
   beforeEach(() => {
-    // Reset environment
+    // Reset environment and config cache
     process.env = { ...originalEnv };
+    resetEnv();
   });
 
   afterEach(() => {
     process.env = originalEnv;
+    resetEnv();
   });
 
   it('should load valid environment variables', () => {
