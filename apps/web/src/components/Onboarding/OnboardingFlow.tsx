@@ -18,7 +18,7 @@ interface OnboardingStep {
 const steps: OnboardingStep[] = [
   {
     id: 'welcome',
-    title: 'Welcome to Chef! 👨‍🍳',
+    title: 'Welcome to TETRISNEWS AICODE! 🚀',
     description: 'Build full-stack web apps with AI assistance. Let\'s get you started in just a few steps.',
     icon: <RocketIcon className="w-12 h-12" />,
   },
@@ -32,7 +32,7 @@ const steps: OnboardingStep[] = [
   {
     id: 'features',
     title: 'AI-Powered Building',
-    description: 'Use natural language to describe what you want to build. Chef will generate the code for you.',
+    description: 'Use natural language to describe what you want to build. TETRISNEWS AICODE will generate the code for you.',
     icon: <LightningBoltIcon className="w-12 h-12" />,
   },
   {
