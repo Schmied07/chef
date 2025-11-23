@@ -61,10 +61,10 @@ export function PWAInstallPrompt() {
             </div>
             <div className="flex-1">
               <h3 className="font-bold text-gray-900 dark:text-white mb-1">
-                Install Chef
+                Install TETRISNEWS AICODE
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                Install Chef as an app for a better experience with offline support.
+                Install TETRISNEWS AICODE as an app for a better experience with offline support.
               </p>
               <div className="flex gap-2">
                 <button
