@@ -256,7 +256,11 @@ process.on('SIGINT', async () => {
 
 // Start server
 server.listen(PORT, async () => {
-  logger.info(`🚀 Chef Backend API running on port ${PORT}`);
+  enhancedLogger.info(`🚀 Chef Backend API running on port ${PORT}`, {
+    environment: env.NODE_ENV,
+    sentryEnabled: !!env.SENTRY_DSN,
+    analyticsEnabled: process.env.ENABLE_ANALYTICS === 'true',
+  });
   await initialize();
 });
 
