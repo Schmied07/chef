@@ -12,7 +12,7 @@ import PropsPanel from '../components/PropsPanel/PropsPanel';
 import CodeViewer from '../components/CodeViewer/CodeViewer';
 import Preview from '../components/Preview/Preview';
 import LogsPanel from '../components/Logs/LogsPanel';
-import { CodeIcon, EyeOpenIcon, ActivityLogIcon, ComponentInstanceIcon, MixIcon } from '@radix-ui/react-icons';
+import { CodeIcon, EyeOpenIcon, ActivityLogIcon, ComponentInstanceIcon } from '@radix-ui/react-icons';
 import classNames from 'classnames';
 
 type ViewMode = 'canvas' | 'code' | 'preview' | 'logs';
