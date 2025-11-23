@@ -160,7 +160,7 @@ function createMockProject(id: string) {
 <body>
   <div id="app">
     <h1>Hello World!</h1>
-    <p>Welcome to the Chef Editor</p>
+    <p>Welcome to the TETRISNEWS AICODE Editor</p>
   </div>
   <script src="script.js"></script>
 </body>
