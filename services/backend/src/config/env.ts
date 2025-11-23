@@ -47,9 +47,20 @@ const envSchema = z.object({
   ANTHROPIC_API_KEY: z.string().optional(),
   GOOGLE_API_KEY: z.string().optional(),
 
-  // Monitoring
+  // Monitoring - Sentry
   SENTRY_DSN: z.string().url().optional(),
+  SENTRY_ENV: z.string().optional(),
+  SENTRY_TRACES_SAMPLE_RATE: z.string().regex(/^0(\.\d+)?$|^1(\.0+)?$/).transform(Number).default('0.1'),
+  SENTRY_PROFILES_SAMPLE_RATE: z.string().regex(/^0(\.\d+)?$|^1(\.0+)?$/).transform(Number).default('0.1'),
+  SENTRY_RELEASE: z.string().optional(),
+  
+  // Monitoring - Logging
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'debug']).default('info'),
+  
+  // Monitoring - Analytics
+  ENABLE_ANALYTICS: z.string().transform((val) => val === 'true').default('false'),
+  POSTHOG_API_KEY: z.string().optional(),
+  POSTHOG_HOST: z.string().url().optional(),
 });
 
 export type EnvConfig = z.infer<typeof envSchema>;
