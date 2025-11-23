@@ -77,8 +77,8 @@ export function setupSentryMiddleware(app: Express): void {
     return;
   }
 
-  // Request handler must be the first middleware
-  app.use(Sentry.requestDataIntegration());
+  // Setup Express integration for Sentry (automatically tracks requests)
+  Sentry.setupExpressErrorHandler(app);
   
   logger.info('✅ Sentry middleware configured');
 }
