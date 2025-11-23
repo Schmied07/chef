@@ -17,7 +17,9 @@ class Cache {
     // Remove oldest if max size reached
     if (this.storage.size >= this.maxSize) {
       const firstKey = this.storage.keys().next().value;
-      this.storage.delete(firstKey);
+      if (firstKey !== undefined) {
+        this.storage.delete(firstKey);
+      }
     }
 
     this.storage.set(key, {
