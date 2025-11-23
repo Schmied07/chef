@@ -5,7 +5,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MagnifyingGlassIcon, CheckCircledIcon } from '@radix-ui/react-icons';
+import { MagnifyingGlassIcon } from '@radix-ui/react-icons';
 import { TemplateCard } from './TemplateCard';
 import { TemplateConfigModal } from './TemplateConfigModal';
 import type { Template } from '@chef/templates';
