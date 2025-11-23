@@ -170,15 +170,15 @@ export function setContext(name: string, context: Record<string, any>): void {
 /**
  * Start a transaction for performance monitoring
  */
-export function startTransaction(name: string, op: string): Sentry.Transaction | null {
+export function startTransaction(name: string, op: string): ReturnType<typeof Sentry.startSpan> | null {
   if (!getEnv().SENTRY_DSN) {
     return null;
   }
 
-  return Sentry.startTransaction({
+  return Sentry.startSpan({
     name,
     op,
-  });
+  }, (span) => span);
 }
 
 /**
