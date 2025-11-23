@@ -191,40 +191,44 @@ app.use(errorHandler);
 // Initialize services
 async function initialize() {
   try {
+    // Initialize Analytics
+    enhancedLogger.info('Initializing analytics...');
+    initAnalytics();
+
     // Initialize Redis
-    logger.info('Initializing Redis connection...');
+    enhancedLogger.info('Initializing Redis connection...');
     getRedisClient();
 
     // Check Docker
-    logger.info('Checking Docker availability...');
+    enhancedLogger.info('Checking Docker availability...');
     const dockerHealthy = await checkDockerHealth();
     if (!dockerHealthy) {
-      logger.warn('⚠️  Docker is not available - builds will fail');
+      enhancedLogger.warn('⚠️  Docker is not available - builds will fail');
     }
 
     // Initialize WebSocket if enabled
     const websocketEnabled = process.env.WEBSOCKET_ENABLED === 'true';
     if (websocketEnabled) {
-      logger.info('Initializing WebSocket server...');
+      enhancedLogger.info('Initializing WebSocket server...');
       initializeWebSocket(server);
     } else {
-      logger.info('WebSocket disabled');
+      enhancedLogger.info('WebSocket disabled');
     }
 
     // Start webhook retry worker if enabled
     const webhookRetryEnabled = process.env.WEBHOOK_RETRY_ENABLED === 'true';
     if (webhookRetryEnabled) {
-      logger.info('Starting webhook retry worker...');
+      enhancedLogger.info('Starting webhook retry worker...');
       startWebhookRetryWorker();
     }
 
     // Start build worker
-    logger.info('Starting build worker...');
+    enhancedLogger.info('Starting build worker...');
     startWorker();
 
-    logger.info('✅ All services initialized');
+    enhancedLogger.info('✅ All services initialized');
   } catch (error) {
-    logger.error('Failed to initialize services:', error);
+    enhancedLogger.error('Failed to initialize services:', error);
     process.exit(1);
   }
 }
