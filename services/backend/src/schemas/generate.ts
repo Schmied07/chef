@@ -3,7 +3,8 @@
  */
 
 import { z } from 'zod';
-import { buildStrategySchema, safeStringSchema } from './project';
+import { buildStrategySchema } from './project';
+import { safeStringSchema } from './common';
 
 /**
  * AI generation config schema
