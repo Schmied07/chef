@@ -1,6 +1,6 @@
 {
-  "name": "chef",
-  "description": "An AI Agent",
+  "name": "tetrisnews-aicode",
+  "description": "TETRISNEWS AICODE - AI-Powered App Builder",
   "private": true,
   "license": "MIT",
   "sideEffects": false,
