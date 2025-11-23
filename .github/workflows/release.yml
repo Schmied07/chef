@@ -1,0 +1,181 @@
+name: Release & Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  # Run tests before release
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        run: npm install -g pnpm@9.5.0
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run linter
+        run: pnpm run lint
+
+      - name: Run type checking
+        run: pnpm run typecheck
+
+      - name: Run tests
+        run: pnpm run test
+
+  # Build and release
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: test
+    outputs:
+      new_release_published: ${{ steps.semantic.outputs.new_release_published }}
+      new_release_version: ${{ steps.semantic.outputs.new_release_version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        run: npm install -g pnpm@9.5.0
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build project
+        run: pnpm run build
+
+      - name: Semantic Release
+        id: semantic
+        uses: cycjimmy/semantic-release-action@v4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          extra_plugins: |
+            @semantic-release/changelog
+            @semantic-release/git
+
+  # Upload source maps to Sentry
+  sentry:
+    name: Upload Source Maps
+    runs-on: ubuntu-latest
+    needs: release
+    if: needs.release.outputs.new_release_published == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Sentry CLI
+        run: npm install -g @sentry/cli
+
+      - name: Build Backend
+        working-directory: services/backend
+        run: |
+          pnpm install
+          pnpm run build
+
+      - name: Upload Backend Source Maps
+        if: env.SENTRY_AUTH_TOKEN != ''
+        working-directory: services/backend
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT_BACKEND }}
+        run: |
+          VERSION="${{ needs.release.outputs.new_release_version }}"
+          sentry-cli releases new "backend@$VERSION"
+          sentry-cli releases files "backend@$VERSION" upload-sourcemaps ./dist --rewrite
+          sentry-cli releases finalize "backend@$VERSION"
+          sentry-cli releases deploys "backend@$VERSION" new -e production
+
+      - name: Build Frontend
+        working-directory: app
+        run: |
+          pnpm install
+          pnpm run build
+
+      - name: Upload Frontend Source Maps
+        if: env.SENTRY_AUTH_TOKEN != ''
+        working-directory: app
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT_FRONTEND }}
+        run: |
+          VERSION="${{ needs.release.outputs.new_release_version }}"
+          sentry-cli releases new "frontend@$VERSION"
+          sentry-cli releases files "frontend@$VERSION" upload-sourcemaps ./build --rewrite
+          sentry-cli releases finalize "frontend@$VERSION"
+          sentry-cli releases deploys "frontend@$VERSION" new -e production
+
+  # Notify on success
+  notify:
+    name: Notify Release
+    runs-on: ubuntu-latest
+    needs: [release, sentry]
+    if: needs.release.outputs.new_release_published == 'true'
+    steps:
+      - name: Send Slack notification
+        if: env.SLACK_WEBHOOK_URL != ''
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          VERSION="${{ needs.release.outputs.new_release_version }}"
+          curl -X POST $SLACK_WEBHOOK_URL \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "text": "🚀 New release deployed!",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Chef Release* v'"$VERSION"' has been deployed to production!"
+                  }
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "View Release Notes"
+                      },
+                      "url": "https://github.com/${{ github.repository }}/releases/tag/v'"$VERSION"'"
+                    }
+                  ]
+                }
+              ]
+            }'
