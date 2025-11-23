@@ -70,6 +70,7 @@ export function initSentry(): void {
 
 /**
  * Setup Sentry middleware for Express
+ * Must be registered BEFORE all routes
  */
 export function setupSentryMiddleware(app: Express): void {
   if (!getEnv().SENTRY_DSN) {
@@ -77,10 +78,7 @@ export function setupSentryMiddleware(app: Express): void {
   }
 
   // Request handler must be the first middleware
-  app.use(Sentry.Handlers.requestHandler());
-  
-  // TracingHandler creates a trace for every incoming request
-  app.use(Sentry.Handlers.tracingHandler());
+  app.use(Sentry.requestDataIntegration());
   
   logger.info('✅ Sentry middleware configured');
 }
@@ -94,12 +92,11 @@ export function setupSentryErrorHandler(app: Express): void {
     return;
   }
 
-  app.use(Sentry.Handlers.errorHandler({
-    shouldHandleError(error) {
-      // Capture all errors
-      return true;
-    },
-  }));
+  // Error handler middleware
+  app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    Sentry.captureException(err);
+    next(err);
+  });
   
   logger.info('✅ Sentry error handler configured');
 }
