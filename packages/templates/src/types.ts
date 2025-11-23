@@ -20,4 +20,5 @@ export interface TemplateMetadata {
   styling?: string;
 }
 
-export const TEMPLATES: Record<string, Template> = {};
+// Re-export all template types
+export * from './metadata/types';
