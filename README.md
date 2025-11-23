@@ -130,22 +130,27 @@ Note: Chef is accessible at http://127.0.0.1:{port}/ and will not work properly 
   - BullMQ job queue with Redis
   - 5-phase build pipeline
 
-## 🆕 Recent Updates (Sprint 2 Complete ✅)
+## 🆕 Recent Updates (Sprint 6 Complete ✅)
 
-### Workers & Sandbox Implementation
+### Monitoring & Release Implementation
 
-- ✅ **Docker Sandbox** - Isolated builds with resource limits
-- ✅ **BullMQ Queue** - Job queue with Redis persistence
-- ✅ **AI Integration** - Full integration with @chef/engine
-- ✅ **Build Pipeline** - 5-phase automated build process
-- ✅ **Artifact Management** - Collection and download of build outputs
-- ✅ **Production Ready** - Docker Compose setup with monitoring
+- ✅ **Sentry Integration** - Error tracking for backend & frontend
+- ✅ **Prometheus & Grafana** - Metrics collection and visualization
+- ✅ **Structured Logging** - JSON logs with correlation IDs
+- ✅ **Usage Analytics** - PostHog self-hosted analytics
+- ✅ **Release Automation** - Semantic versioning with GitHub Actions
+- ✅ **Complete Documentation** - Monitoring, release, and troubleshooting guides
 
-**Quick Start:**
+**Quick Start Monitoring:**
 ```bash
-cd /app/services/backend
-bash scripts/setup.sh
-docker-compose up -d
+# Start monitoring stack
+cd /app/infra
+docker-compose -f docker-compose.monitoring.yml up -d
+
+# Access dashboards:
+# - Grafana: http://localhost:3000 (admin/admin)
+# - Prometheus: http://localhost:9090
+# - PostHog: http://localhost:8000
 ```
 
-See [SPRINT2-COMPLETE.md](SPRINT2-COMPLETE.md) for full documentation.
+See [docs/monitoring.md](docs/monitoring.md) and [docs/release-process.md](docs/release-process.md) for full documentation.
