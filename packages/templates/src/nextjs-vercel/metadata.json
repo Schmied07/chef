@@ -1,0 +1,110 @@
+{
+  "version": "1.0.0",
+  "name": "Next.js + Vercel",
+  "description": "Next.js application optimized for Vercel deployment with App Router and Server Components",
+  "author": "Chef by Convex",
+  "license": "MIT",
+  "variables": {
+    "projectName": {
+      "name": "projectName",
+      "description": "Project name",
+      "type": "string",
+      "default": "my-nextjs-app",
+      "required": true
+    },
+    "auth": {
+      "name": "auth",
+      "description": "Enable authentication (NextAuth.js)",
+      "type": "boolean",
+      "default": true,
+      "required": false
+    },
+    "database": {
+      "name": "database",
+      "description": "Database type",
+      "type": "select",
+      "default": "prisma",
+      "options": ["prisma", "mongodb", "none"],
+      "required": true
+    },
+    "port": {
+      "name": "port",
+      "description": "Development server port",
+      "type": "number",
+      "default": 3000,
+      "required": false
+    }
+  },
+  "conditionalFiles": [
+    {
+      "path": "app/api/auth/[...nextauth]/route.ts",
+      "condition": "{{auth}} === true",
+      "template": "import NextAuth from 'next-auth';\nimport GithubProvider from 'next-auth/providers/github';\n\nconst handler = NextAuth({\n  providers: [\n    GithubProvider({\n      clientId: process.env.GITHUB_ID!,\n      clientSecret: process.env.GITHUB_SECRET!,\n    }),\n  ],\n});\n\nexport { handler as GET, handler as POST };"
+    }
+  ],
+  "dependencies": {
+    "required": {
+      "next": "^14.2.0",
+      "react": "^18.3.1",
+      "react-dom": "^18.3.1"
+    },
+    "optional": {
+      "next-auth": {
+        "version": "^4.24.7",
+        "condition": "{{auth}} === true"
+      },
+      "@prisma/client": {
+        "version": "^5.10.0",
+        "condition": "{{database}} === 'prisma'"
+      },
+      "mongodb": {
+        "version": "^6.3.0",
+        "condition": "{{database}} === 'mongodb'"
+      }
+    },
+    "devDependencies": {
+      "@types/node": "^22.14.0",
+      "@types/react": "^18.3.20",
+      "@types/react-dom": "^18.3.6",
+      "typescript": "~5.7.2",
+      "tailwindcss": "^3.4.1",
+      "postcss": "^8.5.3",
+      "autoprefixer": "^10.4.21",
+      "eslint": "^8",
+      "eslint-config-next": "^14.2.0"
+    }
+  },
+  "scripts": {
+    "dev": "Start Next.js development server",
+    "build": "Build for production",
+    "start": "Start production server",
+    "lint": "Run ESLint",
+    "typecheck": "Run TypeScript type checking"
+  },
+  "features": [
+    {
+      "id": "app-router",
+      "name": "App Router",
+      "description": "Next.js 14+ App Router with Server Components",
+      "enabled": true
+    },
+    {
+      "id": "auth",
+      "name": "NextAuth.js",
+      "description": "Authentication with NextAuth.js",
+      "enabled": true
+    },
+    {
+      "id": "api-routes",
+      "name": "API Routes",
+      "description": "Serverless API routes",
+      "enabled": true
+    },
+    {
+      "id": "vercel",
+      "name": "Vercel Optimized",
+      "description": "Optimized for Vercel deployment",
+      "enabled": true
+    }
+  ]
+}

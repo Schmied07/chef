@@ -1,0 +1,79 @@
+{
+  "version": "1.0.0",
+  "name": "Vue + Firebase",
+  "description": "Full-stack Vue 3 application with Firebase backend, Firestore database, and authentication",
+  "author": "Chef by Convex",
+  "license": "MIT",
+  "variables": {
+    "projectName": {
+      "name": "projectName",
+      "description": "Project name",
+      "type": "string",
+      "default": "my-vue-app",
+      "required": true
+    },
+    "auth": {
+      "name": "auth",
+      "description": "Enable Firebase Authentication",
+      "type": "boolean",
+      "default": true,
+      "required": false
+    },
+    "database": {
+      "name": "database",
+      "description": "Database type",
+      "type": "select",
+      "default": "firestore",
+      "options": ["firestore"],
+      "required": true
+    },
+    "port": {
+      "name": "port",
+      "description": "Development server port",
+      "type": "number",
+      "default": 5173,
+      "required": false
+    }
+  },
+  "conditionalFiles": [],
+  "dependencies": {
+    "required": {
+      "vue": "^3.4.21",
+      "firebase": "^10.8.0",
+      "vue-router": "^4.3.0"
+    },
+    "optional": {},
+    "devDependencies": {
+      "@vitejs/plugin-vue": "^5.0.4",
+      "typescript": "~5.7.2",
+      "vite": "^5.4.17",
+      "vue-tsc": "^2.0.6"
+    }
+  },
+  "scripts": {
+    "dev": "Start Vite development server",
+    "build": "Build for production",
+    "preview": "Preview production build",
+    "typecheck": "Run TypeScript type checking"
+  },
+  "features": [
+    {
+      "id": "auth",
+      "name": "Firebase Authentication",
+      "description": "User authentication with Firebase Auth",
+      "enabled": true
+    },
+    {
+      "id": "firestore",
+      "name": "Cloud Firestore",
+      "description": "NoSQL database with real-time sync",
+      "enabled": true
+    },
+    {
+      "id": "storage",
+      "name": "Cloud Storage",
+      "description": "File storage with Firebase Storage",
+      "enabled": false
+    }
+  ]
+}
