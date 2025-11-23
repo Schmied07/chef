@@ -46,7 +46,7 @@ describe('Build Pipeline Integration', () => {
     try {
       const result = await processBuildJob(job);
       expect(result.jobId).toBe(job.jobId);
-      expect(result.status).toBeOneOf(['success', 'failure']);
+      expect(['success', 'failure']).toContain(result.status);
       expect(result.logs).toBeDefined();
       expect(Array.isArray(result.logs)).toBe(true);
       expect(result.metrics).toBeDefined();
