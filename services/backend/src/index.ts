@@ -148,20 +148,32 @@ app.get('/health', async (_req: Request, res: Response) => {
   });
 });
 
-// Metrics endpoint (JSON)
+// Metrics endpoint (JSON) - Enhanced with Prometheus metrics
 app.get('/metrics', async (_req: Request, res: Response) => {
   const webhookStats = await getWebhookRetryStats();
+  const prometheusMetrics = await getMetricsJSON();
+  const analyticsStats = getAnalyticsStats();
+  
   res.json({
-    ...metrics.getAllMetrics(),
+    // Legacy metrics
+    legacy: metrics.getAllMetrics(),
+    // Prometheus metrics
+    prometheus: prometheusMetrics,
+    // Service stats
     webhookRetry: webhookStats,
+    analytics: analyticsStats,
   });
 });
 
-// Metrics endpoint (Prometheus format)
-app.get('/metrics/prometheus', (_req: Request, res: Response) => {
-  res.set('Content-Type', 'text/plain');
-  res.send(metrics.getPrometheusMetrics());
-});
+// Metrics endpoint (Prometheus format) - Enhanced
+app.get('/metrics/prometheus', async (_req: Request, res: Response) => {
+  res.set('Content-Type', 'text/plain; version=0.0.4; charset=utf-8');
+  
+  // Combine legacy and new Prometheus metrics
+  const legacyMetrics = metrics.getPrometheusMetrics();
+  const newMetrics = await getMetrics();
+  
+  res.send(`${legacyMetrics}\n${newMetrics}`);
 
 // API routes
 app.use('/v1/projects', projectsRouter);
