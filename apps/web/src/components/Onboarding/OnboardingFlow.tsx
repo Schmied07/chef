@@ -3,7 +3,7 @@
  * Sprint 5.4 - Interactive tutorials and onboarding
  */
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { RocketIcon, LightningBoltIcon, CodeIcon, CheckIcon } from '@radix-ui/react-icons';
 
